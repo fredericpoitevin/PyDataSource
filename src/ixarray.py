@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import absolute_import
 import argparse
 import sys
 import IPython
@@ -63,7 +64,7 @@ def main():
     try:
         x = open_h5netcdf(**vars(args)) 
     except:
-        import psxarray
+        from . import psxarray
         x = psxarray.get_xdat(**vars(args))
 
     setattr(sys.modules['__main__'], args.base, x)

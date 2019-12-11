@@ -1,6 +1,7 @@
 from __future__ import print_function
-import markup
-from markup import oneliner as e
+from __future__ import absolute_import
+from . import markup
+from .markup import oneliner as e
 import os, sys, re
 import shutil
 import logging

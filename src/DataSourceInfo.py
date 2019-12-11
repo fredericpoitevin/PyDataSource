@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import sys, os, re, time
 import operator
 import traceback
@@ -106,7 +107,7 @@ class DataSourceInfo(object):
             run_id = self.run
 
         if run_id:
-            import psutils
+            from . import psutils
             self.run = psutils.get_run_from_id(run_id, self.exp) 
             
 #        self.run = int(self.run)
@@ -114,7 +115,7 @@ class DataSourceInfo(object):
 #        inst_id = '{:}:{:}'.format(self.instrument.upper(), self.station)
 
     def _set_data_source(self, data_source=None, valid_streams=True, **kwargs): 
-        import psutils
+        from . import psutils
         self._set_exp_defaults(**kwargs)
 
         if self.monshmserver:
@@ -218,7 +219,7 @@ class DataSourceInfo(object):
         Get user dir. Default is in results (or res for older experiments) of 
         experiment folder.
         """
-        import psutils
+        from . import psutils
 
         if not base_path:
             base_path = '/reg/d/psdm/{:}/{:}/results'.format(self.instrument,self.exp)

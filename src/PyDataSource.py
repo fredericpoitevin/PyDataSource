@@ -82,6 +82,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 @author Koglin, Jason
 """
 from __future__ import print_function
+from __future__ import absolute_import
 #------------------------------
 __version__ = "$Revision$"
 ##-----------------------------
@@ -108,14 +109,14 @@ publish.client_opts.daemon = True
 from psmon.plots import Image, XYPlot, MultiPlot
 
 # PyDataSource modules
-from DataSourceInfo import *
-from psana_doc_info import * 
-from psmessage import Message
-from build_html import Build_html
-from exp_summary import ExperimentSummary
-from exp_summary import get_exp_summary 
-from arp_tools import post_report
-from h5write import *
+from .DataSourceInfo import *
+from .psana_doc_info import * 
+from .psmessage import Message
+from .build_html import Build_html
+from .exp_summary import ExperimentSummary
+from .exp_summary import get_exp_summary 
+from .arp_tools import post_report
+from .h5write import *
 
 _eventCodes_rate = {
         40: '120 Hz',
@@ -546,7 +547,7 @@ class ScanData(object):
         for step in ds.steps:
             okevt = False
             while not okevt:
-                evt = step.next()
+                evt = next(step)
                 ttup = (evt.EventId.sec, evt.EventId.nsec, evt.EventId.fiducials)
                 okevt = ttup in ds._idx_times_tuple
                 if not quiet:
@@ -824,7 +825,7 @@ class DataSource(object):
         """
         if self.data_source.smd:
             try:
-                step = self.steps.next()
+                step = next(self.steps)
                 self.reload()
             except:
                 traceback.print_exc()
@@ -914,7 +915,7 @@ class DataSource(object):
         import numpy as np
         import pandas as pd
         import xarray as xr
-        import xarray_utils
+        from . import xarray_utils
         ds = self
         experiment = ds.data_source.exp
         run = ds.data_source.run
@@ -922,7 +923,7 @@ class DataSource(object):
         xsmd = None
         if load_smd is not False:
             try:
-                import beam_stats
+                from . import beam_stats
                 xsmd = beam_stats.load_small_xarray(ds) 
                 if 'time_ns' not in xsmd.coords:
                     xsmd.coords['time_ns'] = (('time'), np.int64(xsmd.sec*1e9+xsmd.nsec))
@@ -1054,7 +1055,7 @@ class DataSource(object):
             xdata['trans'].attrs['doc'] = 'Total transmission: '+'*'.join(trans_pvs)
 
         if load_psocake:
-            import xarray_utils
+            from . import xarray_utils
             xpsocake = xarray_utils.open_cxi_psocake(experiment, run, 
                     load_smd=True, load_moved_pvs=False, **kwargs)
             if xpsocake is not None:
@@ -1128,7 +1129,7 @@ class DataSource(object):
             # do not wait for monshmserver
             if wait and not self.data_source.monshmserver:
                 import time
-                import psutils
+                from . import psutils
                 time0 = time.time()
                 while not psutils.run_available(self.data_source.exp, self.data_source.run) and 'tut' not in self.data_source.exp: 
                     time.sleep(5.)
@@ -1237,7 +1238,7 @@ class DataSource(object):
             if not reload:
                 if wait:
                     import time
-                    import psutils
+                    from . import psutils
                     time0 = time.time()
                     while not psutils.run_available(self.data_source.exp, self.data_source.run, idx=True) and 'tut' not in self.data_source.exp:
                         time.sleep(5.)
@@ -1270,7 +1271,7 @@ class DataSource(object):
                             print('Additional loading idx {:}'.format(self.data_source))
                         self._idx_ds = psana.DataSource(data_source_idx)
                     
-                    self._idx_run = self._idx_ds.runs().next()
+                    self._idx_run = next(self._idx_ds.runs())
                     self._idx_nsteps = self._idx_run.nsteps()
                     self._idx_times = self._idx_run.times()
                     self.nevents = len(self._idx_times)
@@ -1336,7 +1337,7 @@ class DataSource(object):
                             OKadd = False
                         print((attr, OKadd))
                         if not OKadd:
-                            det.next()
+                            next(det)
                             print(det)
                             OKadd = det.add.stats('corr', **kwargs)
                     else:
@@ -1507,13 +1508,13 @@ class DataSource(object):
         Build xarray object from PyDataSource.DataSource object.
         Same as to_hdf5 -- backwards compatability
         """
-        import h5write
+        from . import h5write
         xarray_kwargs = self.xarray_kwargs.copy()
         xarray_kwargs.update(**kwargs)
         x = h5write.to_hdf5(self, **xarray_kwargs)
         if build_html:
             try:
-                import build_html
+                from . import build_html
                 self.html = build_html.Build_html(x, auto=True) 
             except:
                 traceback.print_exc()
@@ -1567,14 +1568,14 @@ class DataSource(object):
         xarray_kwargs = self.xarray_kwargs.copy()
         xarray_kwargs.update(**kwargs)
         
-        import h5write
+        from . import h5write
         if size > 1:
             x = h5write.to_hdf5_mpi(self, build_html=build_html, **xarray_kwargs)
         else:
             x = h5write.to_hdf5(self, **xarray_kwargs)
             if build_html:
                 try:
-                    import build_html
+                    from . import build_html
                     self.html = build_html.Build_html(x, auto=True) 
                 except:
                     traceback.print_exc()
@@ -1686,7 +1687,7 @@ class DataSource(object):
         """
         try:
             while 'EvrData' not in self._evt_modules and self._ievent < 400:
-                evt = self.events.next()
+                evt = next(self.events)
         except:
             print('No EvrData in first {:} events'.format(self._ievent))
             return
@@ -2015,7 +2016,7 @@ class DataSource(object):
                             # Make sure start with event when loading
                             try:
                                 while self._current_evt is None or alias not in self.events.current._attrs:
-                                    self.events.next()
+                                    next(self.events)
                             except:
                                 traceback.print_exc()
                                 print('No {:} detector object in data stream.'.format(alias))
@@ -2059,7 +2060,7 @@ class DataSource(object):
                     if stats_config:
                         evt = self.events.current
                         while alias not in evt._attrs:
-                            evt = self.events.next()
+                            evt = next(self.events)
                         detector = getattr(evt, alias)
                         for name, stat_item in stats_config.items():
                             attr = stat_item['attr']
@@ -2073,7 +2074,7 @@ class DataSource(object):
         """Load small xarray Dataset. 
         
         """
-        import beam_stats
+        from . import beam_stats
         self.x = beam_stats.load_small_xarray(self, path=path, filename=filename, 
                 refresh=refresh, engine=engine, **kwargs) 
         return self.x
@@ -2140,7 +2141,7 @@ class Runs(object):
         Run : class
             
         """
-        self._ds._ds_run = self._ds._ds.runs().next()
+        self._ds._ds_run = next(self._ds._ds.runs())
         self._ds_runs.append(self._ds._ds_run)
         self._ds._irun +=1
         self._ds._istep = -1
@@ -2330,7 +2331,7 @@ class SmdEvents(object):
             return self._ds._current_step.next(evt_time=evt_time, **kwargs)
         except:
             try:
-                self._ds.steps.next()
+                next(self._ds.steps)
                 return self._ds._current_step.next(**kwargs)
             except:
                 raise StopIteration()
@@ -2369,7 +2370,7 @@ class Steps(object):
             else:
                 self._ds._ievent = -1
                 self._ds._istep +=1
-                self._ds._ds_step = self._ds._ds.steps().next()
+                self._ds._ds_step = next(self._ds._ds.steps())
                 self._ds_steps.append(self._ds._ds_step)
                 self._ds._init_detectors()
                 self._ds._current_step = StepEvents(self._ds)
@@ -2472,7 +2473,7 @@ class StepEvents(object):
                     self._ds._istep = self._ds._istep_last
                 
                 self._ds._ievent += 1
-                evt = self._ds._ds_step.events().next()
+                evt = next(self._ds._ds_step.events())
                 self._ds._evt_keys, self._ds._evt_modules = get_keys(evt)
                 self._ds._current_evt = evt 
                 self._ds._current_data = {}
@@ -2513,7 +2514,7 @@ class Events(object):
         """
         try:
             self._ds._ievent += 1
-            evt = self._ds._ds.events().next()
+            evt = next(self._ds._ds.events())
             self._ds._evt_keys, self._ds._evt_modules = get_keys(evt)
             self._ds._current_evt = evt 
             self._ds._current_data = {}
@@ -3122,7 +3123,7 @@ class ConfigData(object):
             self._smlData = config._values
 
         try:
-            import config_check
+            from . import config_check
             self.configCheck = config_check.ConfigCheck(self)
         except:
             traceback.print_exc()
@@ -3132,7 +3133,7 @@ class ConfigData(object):
         Epics Archive access
         """
         import pandas as pd
-        from epicsarchive import EpicsArchive
+        from .epicsarchive import EpicsArchive
         self._arch = EpicsArchive()
         try:
             dt = pd.Timestamp(min(self._ds._idx_datetime64))
@@ -3390,7 +3391,7 @@ class EvtDetectors(object):
         ievent = nevents
         while ievent != 0:
             try:
-                self.next()
+                next(self)
                 try:
                     print(self)
                 except:
@@ -4310,7 +4311,7 @@ class Detector(object):
                             dims_dict = {'raw': (['X', 'Y'], self.evtData.data8.shape)}
                         else:
                             try:
-                                self.next()
+                                next(self)
                                 dims_dict = {'raw': (['X', 'Y'], self.raw.shape)}
                             except:
                                 print(('Error adding dims for ', str(self)))
@@ -4454,7 +4455,7 @@ class Detector(object):
         ievent = nevents
         while ievent != 0:
             try:
-                self.next()
+                next(self)
                 try:
                     print(self.show_info(attrs=attrs))
                 except:
@@ -5157,7 +5158,7 @@ class AddOn(object):
         
         """
         if not attr:
-            attr = func_name.func_name
+            attr = func_name.__name__
         
         self._det_config['property'][attr] = func_name 
         
@@ -7478,7 +7479,7 @@ def _update_stats(evt):
     """
     Update Welford statistics.
     """
-    from welford import Welford
+    from .welford import Welford
     istep = evt._ds._istep
     for alias, det in evt._dets.items():
         for name, item in det._det_config['stats'].items():

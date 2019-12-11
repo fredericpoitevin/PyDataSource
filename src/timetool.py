@@ -1,4 +1,5 @@
-import PyDataSource
+from __future__ import absolute_import
+from . import PyDataSource
 import os
 
 class Timetool(PyDataSource.Detector):
@@ -28,7 +29,7 @@ class Timetool(PyDataSource.Detector):
         #if 'projected_signal' not in self._xarray_info['dims']:
         if True:
             while not hasattr(self, 'evtData'):
-                self._ds.events.next()
+                next(self._ds.events)
 
             if attrs is None:
                 attrs = ['amplitude', 'nxt_amplitude','position_fwhm','position_pixel',

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 def to_summary(x, dim='time', groupby='step', 
         save_summary=False,
         normby=None,
@@ -203,7 +204,7 @@ def add_butterworth_filter(x, attr, lowcut=None, highcut=None, order=10,
         Minimum threshold to filter
     """
     import xarray as xr
-    from filter_methods import butter_bandpass_filter 
+    from .filter_methods import butter_bandpass_filter 
     if dim == 'time':
         fs = x.time.size/float(x.time.sec.max()-x.time.sec.min())
     else:
@@ -1150,7 +1151,7 @@ def add_transmission(xdata, exp=None, run=None):
         Default use xdata.attrs['run']
 
     """
-    from exp_summary import get_exp_summary
+    from .exp_summary import get_exp_summary
     if not exp:
         if 'experiment' in xdata.attrs:
             exp = str(xdata.attrs['experiment'])
@@ -1187,7 +1188,7 @@ def add_moved_pvs(xdata, exp=None, run=None):
         Default use xdata.attrs['run']
 
     """
-    from exp_summary import get_exp_summary
+    from .exp_summary import get_exp_summary
     if not exp:
         if 'experiment' in xdata.attrs:
             exp = str(xdata.attrs['experiment'])

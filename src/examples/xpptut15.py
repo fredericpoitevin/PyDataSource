@@ -38,18 +38,18 @@ def DataSource(run=None, exp=exp, publish=False, **kwargs):
     """Make xarray summary dataset.
     """
     ds = PyDataSource.DataSource(exp=exp, run=run, **kwargs)
-    evt = ds.events.next()
+    evt = next(ds.events)
     if 'Sc2Imp' in ds.configData.Sources._aliases:
-        evt.Sc2Imp.next()
+        next(evt.Sc2Imp)
         evt.Sc2Imp.add.module('impbox') 
     
     if 'Sc2Epix' in ds.configData.Sources._aliases:
-        evt.Sc2Epix.next()
+        next(evt.Sc2Epix)
         evt.Sc2Epix.add.roi('calib', roi=((0,700),(215,250)),projection=True,name='spec', publish=publish)
         evt.Sc2Epix.add.roi('calib', roi=((0,700),(115,150)),projection=True,name='back', publish=publish)
 
     if 'Sc2Inline' in ds.configData.Sources._aliases:
-        evt.Sc2Inline.next()
+        next(evt.Sc2Inline)
         evt.Sc2Inline.add.roi('raw', roi=((335,755),(380,830)), name='roi', publish=publish)
 
     return ds

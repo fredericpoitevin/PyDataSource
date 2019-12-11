@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 import logging
@@ -14,8 +15,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import output_html
-import markup
+from . import output_html
+from . import markup
 pd.set_option('precision',2)
 pd.set_option('max_colwidth', 66)
 pd.set_option('display.width', 110)
@@ -47,7 +48,7 @@ def get_run_size(run, start_path = '.'):
     return nn, tt
 
 def load_DataSource(**kwargs):
-    import PyDataSource
+    from . import PyDataSource
     try:
         return PyDataSource.DataSource(**kwargs)
     except:
@@ -70,7 +71,7 @@ class Build_experiment(object):
     """
 
     def __init__(self, exp, auto=True, **kwargs):
-        import psutils 
+        from . import psutils 
         if psutils.interactive_mode():
             plt.ioff()
         
@@ -105,7 +106,7 @@ class Build_experiment(object):
             self.to_html()
  
     def _get_exp_summary(self, **kwargs):
-        from exp_summary import get_exp_summary
+        from .exp_summary import get_exp_summary
         return get_exp_summary(self.exp, **kwargs)
 
     def add_smd_summary(self, path=None, make_plots=False, print_on=True, **kwargs):
@@ -132,7 +133,7 @@ class Build_experiment(object):
             Table of percentages for each variable in each run
         '''
         import glob
-        from smd_tools import get_active_dict, get_active_table, get_damage_table
+        from .smd_tools import get_active_dict, get_active_table, get_damage_table
 
         if not path:
             path = os.path.join(self.res_dir,'nc')
@@ -666,7 +667,7 @@ class Build_experiment(object):
         self.html.myprint(tofile=True)
 
     def add_xy_ploterr(self, attr, xaxis=None, howto=None, catagory=None, text=None, table=None, **kwargs):
-        from xarray_utils import xy_ploterr
+        from .xarray_utils import xy_ploterr
         x = self._es.xscan
         if not howto:
             howto = []
@@ -712,7 +713,7 @@ class Build_html(object):
             Basic timing error and drop shot analysis only
 
         """
-        import psutils 
+        from . import psutils 
         if psutils.interactive_mode():
             plt.ioff()
        
@@ -865,8 +866,8 @@ class Build_html(object):
         
         """
         
-        from xarray_utils import get_correlations
-        from xarray_utils import heatmap
+        from .xarray_utils import get_correlations
+        from .xarray_utils import heatmap
         
         x = self._xdat
         catagory = 'PhotonEnergy'
@@ -1041,7 +1042,7 @@ class Build_html(object):
         """
         Add timing error and drop shot plots
         """
-        from xarray_utils import find_beam_correlations, ttest_groupby
+        from .xarray_utils import find_beam_correlations, ttest_groupby
         import seaborn as sns
         x = self._xdat
         if code not in x:
@@ -1296,7 +1297,7 @@ class Build_html(object):
         h5write.make_default_cuts
 
         """
-        import h5write
+        from . import h5write
         try:
             self._xdat = h5write.make_default_cuts(self._xdat)
         except:
@@ -1306,7 +1307,7 @@ class Build_html(object):
     def make_summary(self):
         """Make summary
         """
-        import PyDataSource
+        from . import PyDataSource
         self._xsummary = PyDataSource.to_summary(self._xdat)
 
     def add_config(self, attrs=[], **kwargs):
@@ -1749,7 +1750,7 @@ class Build_html(object):
 
             if make_correlation:
                 try:
-                    from xarray_utils import heatmap
+                    from .xarray_utils import heatmap
                     corr = heatmap(df, confidence=confidence)
                     plt_type = 'correlation'
                     howto = ['from PyDataSource.xarray_utils import heatmap']
@@ -1909,13 +1910,13 @@ class Build_html(object):
             Text describing table
 
         """
-        from xarray_utils import xy_ploterr
+        from .xarray_utils import xy_ploterr
         if xds:
             x = xds.copy() 
         else:
             x = self._xdat
             if 'stat' not in x[attr].dims:
-                import xarray_utils
+                from . import xarray_utils
                 sattrs = [attr]
                 if xaxis:
                     sattrs.append(xaxis)
@@ -2730,7 +2731,7 @@ class Build_html(object):
 
             if len(xstat.shape) == 4:
                 # make images
-                from h5write import make_image
+                from .h5write import make_image
                 try:
                     xcodes = xstat.codes
                     xstat = xr.concat([make_image(xstat.sel(codes=code)) for code in xstat.codes], dim='codes')
@@ -3198,7 +3199,7 @@ class Build_html(object):
     def _make_PyDataSource_html(self, report_notes=None, **kwargs):
         """Make html notes for accessing data with PyDataSource.
         """
-        import PyDataSource
+        from . import PyDataSource
 
         if report_notes:
             if isinstance(report_notes, list):

@@ -1,4 +1,5 @@
-import PyDataSource
+from __future__ import absolute_import
+from . import PyDataSource
 import os
 
 from scipy import ndimage
@@ -13,7 +14,7 @@ class Zyla(PyDataSource.Detector):
 
         self.add.property(center_xpos, doc='Camera X center_of_mass')
         self.add.property(center_ypos, doc='Camera Y center_of_mass')
-        self.next()
+        next(self)
         self.add.projection('calib', axis='x', name='calib_x')
         self.add.projection('calib', axis='y', name='calib_y')
         self.add.count('calib', name='calib_count')

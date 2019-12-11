@@ -1,4 +1,5 @@
-import PyDataSource
+from __future__ import absolute_import
+from . import PyDataSource
 import os
 
 from pylab import *

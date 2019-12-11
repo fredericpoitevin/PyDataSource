@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 import re
 import operator
@@ -383,7 +384,7 @@ class ExperimentSummary(object):
         Build experiment html report.  
         see build_html.Build_experiment
         """
-        import build_html
+        from . import build_html
         return build_html.Build_experiment(self, **kwargs)
 
     def detectors(self, run):
@@ -787,7 +788,7 @@ class ExperimentSummary(object):
             Runs to save configData - if 'all' then submit all that have not already been created
             default = 'all'
         """
-        import PyDataSource
+        from . import PyDataSource
         if runs == 'all':
             drop_stats_files = self.dfruns.T['drop_stats_files']
             runs = [run for run in self.runs_with_xtc if not drop_stats_files.get(run, [])]
@@ -826,7 +827,7 @@ class ExperimentSummary(object):
         """
         Load drop stats summary for all runs
         """
-        import beam_stats
+        from . import beam_stats
         return beam_stats.load_exp_sum(self.exp) 
 
     def build_beam_stats(self, alert=True, **kwargs):
@@ -835,7 +836,7 @@ class ExperimentSummary(object):
 
         First run submit_beam_stats('all')
         """
-        import beam_stats
+        from . import beam_stats
         b = beam_stats.build_drop_stats(self.exp, alert=alert, **kwargs)
         return b
 
@@ -882,7 +883,7 @@ class ExperimentSummary(object):
         """
         Initialize archive
         """
-        from epicsarchive import EpicsArchive
+        from .epicsarchive import EpicsArchive
         if not hasattr(self, 'xruns'):
             self._load_run_info()
         self._arch = EpicsArchive()
@@ -956,7 +957,7 @@ class ExperimentSummary(object):
         if not pvs:
             if set_only is None:
                 set_only = True
-            import PyDataSource
+            from . import PyDataSource
             autorun=False
             if not run:
                 autorun=True
@@ -1302,7 +1303,7 @@ class ExperimentSummary(object):
         import numpy as np
         import xarray as xr
         import pandas as pd
-        from h5write import resort
+        from .h5write import resort
         import time
 
         time0 = time.time()

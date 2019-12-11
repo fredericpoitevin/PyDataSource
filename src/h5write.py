@@ -1,11 +1,12 @@
 from __future__ import print_function
+from __future__ import absolute_import
 # standard python modules
 import os
 import operator
 import time
 import traceback
 import numpy as np
-from xarray_utils import *
+from .xarray_utils import *
 
 """
 DEVELOPMENT MODULE:  Direct write to_hdf5 to be xarray compatible without using xarray.
@@ -170,7 +171,7 @@ def open_h5netcdf(file_name=None, path='', file_base=None, exp=None, run=None,
         path = '/reg/d/psdm/{:}/{:}/{:}/{:}'.format(instrument, exp, h5folder, subfolder)
   
     if exp and run and run > 100000:
-        import psutils
+        from . import psutils
         run = psutils.get_run_from_id(run, exp) 
 
     if not combine and not (chunk and run):
@@ -224,7 +225,7 @@ def to_h5netcdf(xdat=None, ds=None, file_name=None, path=None,
 
     if xdat is None:
         if not ds:
-            import PyDataSource
+            from . import PyDataSource
             ds = PyDataSource.DataSource(**kwargs)
 
         xdat = to_xarray(ds, **kwargs)
@@ -646,7 +647,7 @@ def to_hdf5_mpi(self, build_html='basic',
         
         if build_html:
             try:
-                from PyDataSource import Build_html    
+                from .PyDataSource import Build_html    
                 if build_html == 'auto':
                     self.html = Build_html(x, auto=True) 
                 else: 
@@ -723,7 +724,7 @@ def get_config_xarray(ds=None, exp=None, run=None, path=None, file_name=None,
 
     if reload:
         if not ds:
-            import PyDataSource
+            from . import PyDataSource
             ds = PyDataSource.DataSource(exp=exp, run=run)
         write_hdf5(ds, file_base=file_base, path=path, no_events=True)
         print('Need to create')
@@ -975,7 +976,7 @@ def write_hdf5(self, nevents=None, max_size=10001,
     attr_lookup = {}
     if auto_pvs:
         try:
-            import exp_summary
+            from . import exp_summary
             pv_attrs = exp_summary.get_pv_attrs(exp)
             pv_lookup = {item.get('pv'): a for a, item in pv_attrs.items()}
             for attr in pvs:
@@ -1275,7 +1276,7 @@ def write_hdf5(self, nevents=None, max_size=10001,
             if ichunk > 0 and not chunk_steps:
                 print('skipping ahead to event {:} for chunk {:}'.format(ievent0,ichunk))
                 for i in range(ievent0):
-                    evt = self.events.next()
+                    evt = next(self.events)
                 
                 print(('reset_stats ...', ichunk))
                 self.reset_stats()
@@ -1301,13 +1302,13 @@ def write_hdf5(self, nevents=None, max_size=10001,
                 if ievt == 0:
                     # on first event skip to the desired step
                     for i in range(ichunk):
-                        step_events = self.steps.next()
+                        step_events = next(self.steps)
                 
                     print(('reset_stats ...', ichunk))
                     self.reset_stats()
                 
                 try:
-                    evt = step_events.next()
+                    evt = next(step_events)
                 except:
                     ievent = -1
                     continue

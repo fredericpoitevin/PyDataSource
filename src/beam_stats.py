@@ -2,6 +2,7 @@
 Beam statistics methods
 """
 from __future__ import print_function
+from __future__ import absolute_import
 import logging
 import traceback
 from IPython.core.debugger import Tracer
@@ -65,7 +66,7 @@ def load_exp_sum(exp, instrument=None, path=None, nctype='drop_sum', save=True):
         Save drop_summary file 
 
     """
-    import xarray_utils
+    from . import xarray_utils
     import os
     import glob
     import xarray as xr
@@ -145,7 +146,7 @@ def load_exp_sum(exp, instrument=None, path=None, nctype='drop_sum', save=True):
         sum_file = '{:}/drop_summary.nc'.format(path)
         x.attrs['file_name'] = sum_file
         print('Saving drop_summary file: {:}'.format(sum_file))
-        from xarray_utils import clean_dataset
+        from .xarray_utils import clean_dataset
         x = clean_dataset(x)
         x.To_netcdf(sum_file, engine='h5netcdf')
         #x.To_netcdf(sum_file, engine='h5netcdf', invalid_netcdf=True)
@@ -180,12 +181,12 @@ def build_drop_stats(x, min_detected=2,
     h5file = os.path.join(path,report_name+'.nc')
     
     try:
-        from PyDataSource import DataSource
+        from .PyDataSource import DataSource
         ds = DataSource(exp=exp,run=run)
         config_info = str(ds.configData.show_info(show_codes=False))
         print(config_info)
         ievt = 0
-        evt = ds.events.next()
+        evt = next(ds.events)
         # make sure in all detectors have been seen to get full det config
         for det, detector in ds._detectors.items(): 
             while det not in evt._attrs and ievt < min([1000,ds.nevents]):
@@ -198,8 +199,8 @@ def build_drop_stats(x, min_detected=2,
 
     report_notes = ['Report includes:']
     try:
-        from build_html import Build_html
-        from h5write import runlist_to_str
+        from .build_html import Build_html
+        from .h5write import runlist_to_str
         b = Build_html(x, h5file=h5file, filename=report_name, path=html_path,
                 title=exp+' Drop Summary', subtitle='Drop Summary')
         dattrs = [attr for attr, a in x.data_vars.items() if 'dvar' in a.dims]
@@ -290,7 +291,7 @@ def build_drop_stats(x, min_detected=2,
                 alert_items = {name.lstrip('Alert').lstrip(' '): item for name, item in b.results.items() \
                         if name.startswith('Alert')}
                 if alert_items:
-                    from psmessage import Message
+                    from .psmessage import Message
 
                     message = Message('Alert {:} Off-by-one Errors'.format(exp))
                     message('')
@@ -354,10 +355,10 @@ def get_beam_stats(exp, run, default_modules={},
 
 
     """
-    from xarray_utils import set_delta_beam
-    from xarray_utils import clean_dataset
-    from xarray_utils import merge_fill
-    import PyDataSource
+    from .xarray_utils import set_delta_beam
+    from .xarray_utils import clean_dataset
+    from .xarray_utils import merge_fill
+    from . import PyDataSource
     import xarray as xr
     import numpy as np
     import pandas as pd
@@ -666,7 +667,7 @@ def get_beam_stats(exp, run, default_modules={},
                     xdrop[name].attrs['alias'] = det
                     area_dets.append(name)
                     if add_stats:
-                        detector.next()
+                        next(detector)
                         ok_stats = detector.add.stats('raw', eventCodes=code_stats)
                         print(('Adding stats for', name, ok_stats))
                 
@@ -680,7 +681,7 @@ def get_beam_stats(exp, run, default_modules={},
                     xdrop[name].attrs['alias'] = det
                     area_dets.append(name)
                     if add_stats:
-                        detector.next()
+                        next(detector)
                         ok_stats = detector.add.stats('calib', eventCodes=code_stats)
                         print(('Adding stats for', name, ok_stats))
                 
@@ -703,7 +704,7 @@ def get_beam_stats(exp, run, default_modules={},
                     xdrop[name].attrs['unit'] = 'ADU'
                     xdrop[name].attrs['alias'] = det
                     if add_stats:
-                        detector.next()
+                        next(detector)
                         ok_stats = detector.add.stats('calib', eventCodes=code_stats)
                         print(('Adding stats for', name, ok_stats))
                 
@@ -717,7 +718,7 @@ def get_beam_stats(exp, run, default_modules={},
                     xdrop[name].attrs['alias'] = det
                     area_dets.append(name)
                     if add_stats:
-                        detector.next()
+                        next(detector)
                         ok_stats = detector.add.stats('corr', eventCodes=code_stats)
                         print(('Adding stats for', name, ok_stats))
 
@@ -963,7 +964,7 @@ def build_beam_stats(exp=None, run=None,
     weblink='http://pswww.slac.stanford.edu/experiment_results/{:}/{:}-{:}/{:}/{:}'.format(*webattrs)
 
     try:
-        from PyDataSource import DataSource
+        from .PyDataSource import DataSource
         ds = DataSource(exp=exp,run=run)
         configData = ds.configData
         config_info = str(ds.configData.show_info(show_codes=False))
@@ -975,7 +976,7 @@ def build_beam_stats(exp=None, run=None,
 
 
     try:
-        from build_html import Build_html
+        from .build_html import Build_html
    
         b = Build_html(xdrop, h5file=h5file, filename=report_name, path=html_path)
         drop_attr = str(xdrop.attrs.get('drop_attr', 'ec162'))
@@ -1282,7 +1283,7 @@ def build_beam_stats(exp=None, run=None,
             if alert and to_name is not 'None':
                 message = None
                 try:
-                    from psmessage import Message
+                    from .psmessage import Message
                     import pandas as pd
                     message = Message('Alert {:} Run {:}: {:}'.format(exp,run, ','.join(alert_items.keys())))
                     event_times = pd.to_datetime(b._xdat.time.values)
@@ -1375,9 +1376,9 @@ def make_small_xarray(self, auto_update=True,
     ignore_unused_codes : bool
         If true drop unused eventCodes except drop_code [default=True]
     """
-    from xarray_utils import set_delta_beam
-    from xarray_utils import clean_dataset
-    from xarray_utils import to_summary
+    from .xarray_utils import set_delta_beam
+    from .xarray_utils import clean_dataset
+    from .xarray_utils import to_summary
     import numpy as np
     import pandas as pd
     import time
@@ -1409,7 +1410,7 @@ def make_small_xarray(self, auto_update=True,
     
     ievt = 0
     if add_dets:
-        evt = self.events.next()
+        evt = next(self.events)
         for det, detector in self._detectors.items(): 
             #srcstr = detector._srcstr 
             #srcname = srcstr.split('(')[1].split(')')[0]
@@ -1568,18 +1569,18 @@ def make_small_xarray(self, auto_update=True,
     x.attrs['expNum'] = self.expNum
     # add attributes
     self.reload()
-    evt = self.events.next()
+    evt = next(self.events)
     for det, item in dets.items():
         detector = self._detectors.get(det)
         # get next event with detector in event
         # needed when controls cameras and/or groups present
         if det not in ['EventId', 'Evr']:
             try:
-                detector.next()
+                next(detector)
             except:
                 self.reload()
                 try:
-                    detector.next()
+                    next(detector)
                 except:
                     print('Cannot load attributes for {:}'.format(det))
             
@@ -1773,8 +1774,8 @@ def save_exp_stats(exp, instrument=None, path=None, find_corr=True):
     import os
     import glob
     import xarray as xr
-    from xarray_utils import find_beam_correlations
-    from xarray_utils import clean_dataset
+    from .xarray_utils import find_beam_correlations
+    from .xarray_utils import clean_dataset
     if not instrument:
         instrument = exp[0:3]
     if not path:

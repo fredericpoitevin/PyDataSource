@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 import re
 import operator
@@ -26,7 +27,7 @@ def get_instrument_xarray(experiments=None, instrument=None):
     """
     get experiment xarray
     """
-    from PyDataSource import get_exp_summary
+    from .PyDataSource import get_exp_summary
     if not experiments:
         if instrument:
             experiments = get_experiment_list(instrument)

@@ -1,4 +1,5 @@
-import PyDataSource
+from __future__ import absolute_import
+from . import PyDataSource
 
 class Epix10ka(PyDataSource.Detector):
     """Epix10ka Detector Class.

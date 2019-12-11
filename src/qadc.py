@@ -1,4 +1,5 @@
-import PyDataSource
+from __future__ import absolute_import
+from . import PyDataSource
 import numpy as np
 
 class Qadc(PyDataSource.Detector):

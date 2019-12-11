@@ -1,5 +1,6 @@
 from __future__ import print_function
-import psutils
+from __future__ import absolute_import
+from . import psutils
 
 class elog(object):
     _elogs = {}

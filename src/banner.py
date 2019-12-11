@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 # banner used in loading with idatasource
 import argparse
 import sys
 import time
-from psmessage import Message
+from .psmessage import Message
 
 def banner(ds, base='ds', time0=None):
     message = Message()
@@ -18,7 +19,7 @@ def banner(ds, base='ds', time0=None):
     
     message.add("")
     ds.configData.show_info()
-    evt = ds.events.next()
+    evt = next(ds.events)
     message.add("")
     message.add("*"*80)
     message.add('{:} is a python friendly (i.e, tab accessible) form of the psana.DataSource.'.format(base))

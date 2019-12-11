@@ -1,11 +1,12 @@
 from __future__ import print_function
+from __future__ import absolute_import
 # standard python modules
 import os
 import operator
 import time
 import traceback
 import numpy as np
-from xarray_utils import *
+from .xarray_utils import *
 #from pylab import *
 
 def runlist_to_str(runs, portable=False):
@@ -176,7 +177,7 @@ def to_h5netcdf(xdat=None, ds=None, file_name=None, path=None,
 
     if not xdat:
         if not ds:
-            import PyDataSource
+            from . import PyDataSource
             ds = PyDataSource.DataSource(**kwargs)
 
         xdat = to_xarray(ds, **kwargs)
@@ -600,7 +601,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
         # Need to update to jump to event.
         if ichunk > 1 and not chunk_steps:
             for i in range(ievent0):
-                evt = ds.events.next()
+                evt = next(ds.events)
         
             print('Previous event before current chunk:', evt)
 
@@ -619,10 +620,10 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
             if ievt == 0:
                 # on first event skip to the desired step
                 for i in range(ichunk):
-                    step_events = ds.steps.next()
+                    step_events = next(ds.steps)
             
             try:
-                evt = step_events.next()
+                evt = next(step_events)
             except:
                 ievent = -1
                 continue

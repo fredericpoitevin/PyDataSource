@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 class Message(object):
     """Message class for printing messages and posting messages to the elog.
@@ -27,7 +28,7 @@ class Message(object):
            
            Message will be printed unless show=False
         """
-        import elog
+        from . import elog
         if show:
             self.__repr__()
         
@@ -38,7 +39,7 @@ class Message(object):
            Message will be printed unless show=False
            Equivalent to post function with name='instrument'
         """        
-        import elog
+        from . import elog
         if show:
             self.__repr__()
         

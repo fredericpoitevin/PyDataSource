@@ -1,4 +1,5 @@
-import PyDataSource
+from __future__ import absolute_import
+from . import PyDataSource
 
 class Cspad(PyDataSource.Detector):
     """Cspad Detector Class.
@@ -44,7 +45,7 @@ class Cspad(PyDataSource.Detector):
         """
         if not self._det_config['stats'].get('corr_stats'):
             self.add.stats('corr')
-            self.next()
+            next(self)
         self.add.property(img_max)
         self.add.psplot('img_max')
 

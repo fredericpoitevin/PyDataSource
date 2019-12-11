@@ -122,16 +122,16 @@ def DataSource(run=None, exp=exp, publish=False, projection=False, save_config=F
     """Make xarray summary dataset.
     """
     ds = PyDataSource.DataSource(exp=exp, run=run, **kwargs)
-    evt = ds.events.next()
+    evt = next(ds.events)
    
     if 'BeamMonitor' in ds._detectors:
-        evt.BeamMonitor.next()
+        next(evt.BeamMonitor)
         evt.BeamMonitor.add.module('wave8')
         evt.BeamMonitor.add.stats('waveforms')
         #evt.BeamMonitor.add.module('wave8',path='/reg/neh/home/koglin/psana/current/PyDataSource/src/')
 
     if 'CsPad' in ds._detectors:
-        evt.CsPad.next()
+        next(evt.CsPad)
         evt.CsPad.add.histogram('corr',bins=range(-15,300))
         evt.CsPad.add.count('corr')  
         evt.CsPad.add.stats('corr')
@@ -166,9 +166,9 @@ def DataSource(run=None, exp=exp, publish=False, projection=False, save_config=F
     return ds
 
 def make_plots(ds):
-    evt = ds.events.next()
+    evt = next(ds.events)
    
-    evt.BeamMonitor.next()
+    next(evt.BeamMonitor)
     evt.BeamMonitor.add.module('wave8')
     #evt.BeamMonitor.add.module('wave8',path='/reg/neh/home/koglin/psana/current/PyDataSource/src/')
     

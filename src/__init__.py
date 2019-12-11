@@ -1,22 +1,23 @@
+from __future__ import absolute_import
 __all__ = []
 
 #from PyDataSource import DataSource
 
 #import matplotlib as mpl
 #mpl.use('Agg')
-from PyDataSource import *
+from .PyDataSource import *
 #from psxarray import * 
-import h5write
-import xarray_utils
-import filter_methods
+from . import h5write
+from . import xarray_utils
+from . import filter_methods
 #import examples
-from h5write import *
-from exp_summary import get_exp_summary 
-from epicsarchive import EpicsArchive
-from build_html import Build_html, Build_experiment
-from arp_tools import post_report
-from psutils import get_run_from_id
-from xarray_utils import open_cxi_psocake
+from .h5write import *
+from .exp_summary import get_exp_summary 
+from .epicsarchive import EpicsArchive
+from .build_html import Build_html, Build_experiment
+from .arp_tools import post_report
+from .psutils import get_run_from_id
+from .xarray_utils import open_cxi_psocake
 
 __version__ = '00.01.01'
 

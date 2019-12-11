@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 class ConfigCheck(object):
     """
@@ -125,7 +126,7 @@ class ConfigCheck(object):
                 for a in self._warning_dict.items()}
 
     def show_info(self, **kwargs):
-        from psmessage import Message
+        from .psmessage import Message
         message = Message(quiet=True, **kwargs)
         if self.alerts or self.warnings:
             header = '{:15} {:14} {:8} {:22}'.format('detector',  'parameter', 'level', 'error') 

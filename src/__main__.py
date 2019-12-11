@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import time
 import argparse
 
@@ -56,17 +57,17 @@ if __name__ == "__main__":
     ffb = args.ffb
     #print '{:} Run {:}'.format(exp, run)
     if attr in ['build']:
-        from build_html import Build_html
-        import h5write
+        from .build_html import Build_html
+        from . import h5write
         x = h5write.open_h5netcdf(exp=exp,run=run)
         print(x)
         b = Build_html(x, auto=True)
    
     elif attr in ['beam_stats']:
         # Build beam stats to check for dropped shots and off-by-one
-        from beam_stats import get_beam_stats
+        from .beam_stats import get_beam_stats
         if run > 100000:
-            import psutils
+            from . import psutils
             run = psutils.get_run_from_id(run, exp) 
         format_str = "get_beam_stats(exp={:},run={:}, from_name={:}, to_name={:}, wait=True, timeout=False"
         if ffb:
@@ -76,7 +77,7 @@ if __name__ == "__main__":
                 from_name=args.batchuser, to_name=args.alert, wait=True, timeout=False)
 
     else:
-        import PyDataSource
+        from . import PyDataSource
         ds = PyDataSource.DataSource(exp=exp,run=run)
         if args.build:
             build_html=args.build
@@ -131,7 +132,7 @@ if __name__ == "__main__":
                     print('Cannot parse args.det')
 
             if dets:
-                evt = ds.events.next()
+                evt = next(ds.events)
                 for alias, detector in ds._detectors.items():
                     if '.' in alias:
                         alias, attr = alias.split('.')
@@ -141,7 +142,7 @@ if __name__ == "__main__":
                         continue
                     try:
                         while alias not in evt._attrs:
-                            evt.next()
+                            next(evt)
                         try:
                             detector._update_xarray_info()
                         except:
@@ -199,7 +200,7 @@ if __name__ == "__main__":
                         get_new = raw_input("Run Finished - Reload ?\n".format(nevents))
 
         if attr in ['mpi']:
-            from h5write import to_hdf5_mpi
+            from .h5write import to_hdf5_mpi
             print(ds.configData)
             print('to hdf5 with mpi {:}'.format(args))
             if args.config and args.config not in ['auto', 'default']:
@@ -220,7 +221,7 @@ if __name__ == "__main__":
                     build_html=build_html, cleanup=cleanup)
 
         if attr in ['batch']:
-            from h5write import write_hdf5
+            from .h5write import write_hdf5
             if args.config:
                 if args.config in ['auto', 'default']:
                     config = ds._get_config_file()
@@ -254,7 +255,7 @@ if __name__ == "__main__":
             print(x)
 
         if attr in ['test']:
-            from h5write import write_hdf5
+            from .h5write import write_hdf5
             print(ds.configData.__repr__())
             print('-'*80)
             print(ds._device_sets)
