@@ -1,6 +1,7 @@
 """
 Beam statistics methods
 """
+from __future__ import print_function
 import logging
 import traceback
 from IPython.core.debugger import Tracer
@@ -89,7 +90,7 @@ def load_exp_sum(exp, instrument=None, path=None, nctype='drop_sum', save=True):
             else:
                 print('Skipping Run {:}: {:}'.format(x.run, f))
         except:
-            print('cannot do ', f)
+            print(('cannot do ', f))
 
     dvars = sorted(list(set(dvars)))
     ax = []
@@ -445,7 +446,7 @@ def get_beam_stats(exp, run, default_modules={},
          
                     except:
                         traceback.print_exc()
-                        print('cannot get meta for', alias, attr)
+                        print(('cannot get meta for', alias, attr))
                         pass
                 vals = [item['val'] for item in dat['data']]
                 if not vals:
@@ -472,7 +473,7 @@ def get_beam_stats(exp, run, default_modules={},
                 
                 except:
                     traceback.print_exc()
-                    print('Error loadinig', alias)
+                    print(('Error loadinig', alias))
 
                 try:
                     print('{:8.3f} {:28} {:8} {:10.3f} {:4} {:20} {:}'.format(time_next-time_last, \
@@ -483,7 +484,7 @@ def get_beam_stats(exp, run, default_modules={},
             
             except:
                 traceback.print_exc()
-                print('Error loading', alias)
+                print(('Error loading', alias))
 
         xdata = xr.merge(data_arrays.values())
         if trans_pvs:
@@ -667,7 +668,7 @@ def get_beam_stats(exp, run, default_modules={},
                     if add_stats:
                         detector.next()
                         ok_stats = detector.add.stats('raw', eventCodes=code_stats)
-                        print('Adding stats for', name, ok_stats)
+                        print(('Adding stats for', name, ok_stats))
                 
                 elif devName in ['Epix10ka']:
                     method = 'rawsum'
@@ -681,7 +682,7 @@ def get_beam_stats(exp, run, default_modules={},
                     if add_stats:
                         detector.next()
                         ok_stats = detector.add.stats('calib', eventCodes=code_stats)
-                        print('Adding stats for', name, ok_stats)
+                        print(('Adding stats for', name, ok_stats))
                 
                 elif devName in ['Jungfrau']:
                     nch = detector.configData.numberOfModules
@@ -704,7 +705,7 @@ def get_beam_stats(exp, run, default_modules={},
                     if add_stats:
                         detector.next()
                         ok_stats = detector.add.stats('calib', eventCodes=code_stats)
-                        print('Adding stats for', name, ok_stats)
+                        print(('Adding stats for', name, ok_stats))
                 
                 else:
                     method = 'count'
@@ -718,7 +719,7 @@ def get_beam_stats(exp, run, default_modules={},
                     if add_stats:
                         detector.next()
                         ok_stats = detector.add.stats('corr', eventCodes=code_stats)
-                        print('Adding stats for', name, ok_stats)
+                        print(('Adding stats for', name, ok_stats))
 
             elif detector._pydet.__module__ == 'Detector.GenericWFDetector':
                 srcstr = detector._srcstr 
@@ -1520,7 +1521,7 @@ def make_small_xarray(self, auto_update=True,
         istep = self._istep
         data['step'][i] = istep
         if i % nupdate == nupdate-1:
-            print(istep, evt)
+            print((istep, evt))
 
         # add eventCodes
         for code in evt.Evr.eventCodes_strict:

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 def get_config_file(run=None, exp=None, instrument=None, path=None):
     """
@@ -29,5 +30,5 @@ if __name__ == "__main__":
     from sys import argv
     exp = argv[1]
     run = argv[2]
-    print get_config_file(run, exp)
+    print(get_config_file(run, exp))
 

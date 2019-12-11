@@ -1,3 +1,4 @@
+from __future__ import print_function
 import PyDataSource
 import os
 
@@ -102,7 +103,7 @@ class Channel(object):
         name = self._name
         attrs = ['amplitude', 'time']
         value = map(int,[getattr(self.waveform,attr)() for attr in attrs])
-        print '{:8s} {:26} {:}'.format(name, value, doc)
+        print('{:8s} {:26} {:}'.format(name, value, doc))
 
 def amplitudes(self):
     """Amplitude of each filtered waveform.

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import re
 import operator
@@ -42,7 +43,7 @@ def write_exp_summary(self, file_name=None, path=None, **kwargs):
             pickle.dump(pickle.dumps(self, protocol=-1), pickle_file, protocol=-1)
     except:
         traceback.print_exc()
-        print('Failes writing pickle file', path+'/'+file_name)
+        print(('Failes writing pickle file', path+'/'+file_name))
 
 def open_epics_data(exp=None, file_name=None, path=None, run=None, **kwargs):
     import glob
@@ -69,11 +70,11 @@ def open_epics_data(exp=None, file_name=None, path=None, run=None, **kwargs):
             xdata = xr.open_dataset(full_file, engine='h5netcdf')
         except:
             traceback.print_exc()
-            print('Failes reading file', full_file)
+            print(('Failes reading file', full_file))
             return None
 
     else:
-        print('Failes finding file', full_file)
+        print(('Failes finding file', full_file))
         return None
     
     return xdata
@@ -94,7 +95,7 @@ def get_pv_attrs(exp, auto_load=False):
     try:
         xpvs = open_epics_data(exp, 'xpvs.nc')
     except:
-        print('Failed open_epics_data for', exp)
+        print(('Failed open_epics_data for', exp))
         xpvs = None
 
     if xpvs is not None:
@@ -179,7 +180,7 @@ def read_exp_summary(exp=None, file_name=None, path=None, **kwargs):
         
         except:
             traceback.print_exc()
-            print('Failes reading pickle file', full_file)
+            print(('Failes reading pickle file', full_file))
             return None
 
     else:
@@ -677,13 +678,13 @@ class ExperimentSummary(object):
                     df.plot(drawstyle='steps', linewidth=linewidth, label=lab, ax=ax)
             except:
                 traceback.print_exc()
-                print('cannot plot', attr)
+                print(('cannot plot', attr))
 
             try:
                 if isinstance(attr, str) and attr in xepics and xepics.get(attr+'_set'):
                     xepics[attr+'_set'].dropna(dim='time')[1:].to_pandas().plot(style='+',label=attr+'_set')
             except:
-                print('cannot plot', attr+'_set')
+                print(('cannot plot', attr+'_set'))
 
         ax2 = ax.twiny()
         ax2.set_xlabel('Run')
@@ -772,7 +773,7 @@ class ExperimentSummary(object):
         """
         import subprocess
         bsubproc = 'submit_summary {:} {:} {:} {:}'.format(self.exp, run, batchqueue, option)
-        print('-> ',bsubproc)
+        print(('-> ',bsubproc))
 
         subproc = subprocess.Popen(bsubproc, stdout=subprocess.PIPE, shell=True)
 
@@ -797,7 +798,7 @@ class ExperimentSummary(object):
                 print('Saved {:}'.format(ds))
             except:
                 traceback.print_exc()
-                print('Cannot save configData: ', ds)
+                print(('Cannot save configData: ', ds))
 
 
     def submit_beam_stats(self, runs, batchqueue='psanaq', alert='None'):
@@ -818,7 +819,7 @@ class ExperimentSummary(object):
             runs = [runs]
         for run in runs:
             bsubproc = 'submit_beam_stats {:} {:} {:} {:}'.format(self.exp, run, batchqueue, alert)
-            print('-> ',bsubproc)
+            print(('-> ',bsubproc))
             subproc = subprocess.Popen(bsubproc, stdout=subprocess.PIPE, shell=True)
 
     def get_beam_summary(self):
@@ -846,7 +847,7 @@ class ExperimentSummary(object):
                 if x is not None:
                     ax[i] = x
             except:     
-                print('cannot load run', i)
+                print(('cannot load run', i))
 
         self.xdata = ax
         return self.xdata
@@ -1000,13 +1001,13 @@ class ExperimentSummary(object):
                         try:
                             pvnames.pop(pv)
                         except:
-                            print('Cannot pop ',pv,'ending with',omit_pv)
+                            print(('Cannot pop ',pv,'ending with',omit_pv))
                 for omit_pv in omit_rbv:
                     if  omit_pv in pv and pv.endswith('.RBV'):
                         try:
                             pvnames.pop(pv)
                         except:
-                            print('Cannot pop ',pv, omit_rbv)
+                            print(('Cannot pop ',pv, omit_rbv))
 
         else:
             if set_only is None:
@@ -1089,7 +1090,7 @@ class ExperimentSummary(object):
              
                         except:
                             traceback.print_exc()
-                            print('cannot get meta for', alias, attr)
+                            print(('cannot get meta for', alias, attr))
                             
                     vals = [item['val'] for item in dat['data']]
                     doc = attrs.get('description','')
@@ -1100,7 +1101,7 @@ class ExperimentSummary(object):
                         if vals:
                             if isinstance(vals[0],str):
                                 if not quiet:
-                                    print(alias, 'string')
+                                    print((alias, 'string'))
                                 vals = np.array(vals, dtype=str)
                             else:
                                 times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
@@ -1152,7 +1153,7 @@ class ExperimentSummary(object):
                     except:
                         traceback.print_exc()
                         if not quiet:
-                            print('Error loadinig', alias)
+                            print(('Error loadinig', alias))
 
                     if not quiet:
                         try:
@@ -1165,7 +1166,7 @@ class ExperimentSummary(object):
                 except:
                     traceback.print_exc()
                     if not quiet:
-                        print('Error loading', alias)
+                        print(('Error loading', alias))
 
         if not quiet:
             print('... Merging')
@@ -1280,7 +1281,7 @@ class ExperimentSummary(object):
         if epics_dir:
             if not quiet:
                 print('instrument: {:}'.format(instrument))
-                print('loading epics pvs from', epics_file, ' in', epics_dir)
+                print(('loading epics pvs from', epics_file, ' in', epics_dir))
             
             self._epics_dict.update(epicsArch_dict(epics_file,epics_dir))
             for item in self._epics_dict.values():

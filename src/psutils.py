@@ -1,3 +1,4 @@
+from __future__ import print_function
 # import standard python system tools
 import argparse
 from glob import glob
@@ -40,10 +41,10 @@ def import_module(module_name, module_path, name=None):
         globals()[name] = imp.load_module(module_name, file, filename, desc)
 #        setattr(sys.modules[__name__],module_name,
 #                imp.load_module(module_name, file, filename, desc)) 
-    except ImportError, err:
-        print 'ImportError:', err
+    except ImportError as err:
+        print('ImportError:', err)
     except:
-        print 'import_module error'
+        print('import_module error')
 
 def getattr_complete(base, args):
     """Recursive getattr
@@ -96,7 +97,7 @@ def send_mail(subject, message='', from_name=None, to_name=None, **kwargs):
             to_name = ','.join(to_names)
 
     if not isinstance(to_name, str):
-        print('Not valid to_name:', to_name)
+        print(('Not valid to_name:', to_name))
         return None
 
     if not isinstance(message, str):
@@ -218,7 +219,7 @@ def get_groups(*args, **kwargs):
                 groups[user] = [] 
         return groups
     except:
-        print 'No groups found'
+        print('No groups found')
         return None
 
 def get_run_from_id(run_id, exp):
@@ -371,7 +372,7 @@ def active_experiment(*args, **kwargs):
             experiment_info.active_experiment(instrument.upper(),station)[1]
     except:
         raise NameError('instrument:',instrument,'station:',station)
-        print 'Cannot determint active experiment!'
+        print('Cannot determint active experiment!')
         active_experiment = None
 
     return active_experiment
@@ -398,7 +399,7 @@ def live_source(*args, **kwargs):
             MPI_RANK = 0
             source_str = 'shmem={:}.0:stop=no'.format(monshmserver)
         except:
-            print 'Exception in finding shared memory server: ',shm_srvs
+            print('Exception in finding shared memory server: ',shm_srvs)
             source_str = None
     else:
         source_str = None
@@ -537,7 +538,7 @@ def read_dictionary(file_name):
         with open(file_name,'r') as f:
             read_dict = eval(f.read())
     except:
-        print "Failed reading ", file_name
+        print("Failed reading ", file_name)
         read_dict = None
 
     return read_dict
@@ -545,12 +546,12 @@ def read_dictionary(file_name):
 def write_dictionary(out_dict, file_name, **kwargs):
     """Write out a dictionary to file (using pprint for easy to read formatting).
     """
-    print out_dict,file_name
+    print(out_dict,file_name)
     try:
         with open(file_name,'w') as f:
             f.write(pprint.pformat(out_dict))
     except:
-        print "Failed writing to ", file_name
+        print("Failed writing to ", file_name)
 
 def capture_print(executableStrThatPrints):
     """Redirect stdout to StringIO()

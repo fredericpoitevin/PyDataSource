@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 def linear_model(x, attr, xvars, fit_intercept=None, name=None, 
         cut=None, residuals=True, quiet=True,
@@ -19,7 +20,7 @@ def linear_model(x, attr, xvars, fit_intercept=None, name=None,
         name = '{:}_model'.format(attr)
 
     if not quiet:
-        print '\nUsing scikit-learn LinearRegression to build model for {:} from variables:\n  {:}'.format(attr, str(xvars))
+        print('\nUsing scikit-learn LinearRegression to build model for {:} from variables:\n  {:}'.format(attr, str(xvars)))
 
     allattrs = xvars + [attr]
     if cut:
@@ -31,8 +32,8 @@ def linear_model(x, attr, xvars, fit_intercept=None, name=None,
         df_xvars = xx[xvars].where(xx[cut] == 1, drop=True).to_dataframe()
         xdata = xx[attr].where(xx[cut] == 1, drop=True).data
         if not quiet:
-            print '\nUsing following cut in buildiing model'
-            print xx[cut]
+            print('\nUsing following cut in buildiing model')
+            print(xx[cut])
     else:
         df_xvars = df_xvars0
         xdata = xx[attr].data
@@ -54,8 +55,8 @@ def linear_model(x, attr, xvars, fit_intercept=None, name=None,
     x[name].attrs['intercept_'] = lm.intercept_
     x[name].attrs['score'] = lm.score(df_xvars, xdata)
     if not quiet:
-        print '\n****Model Results****'
-        print x.reset_coords()[name]
+        print('\n****Model Results****')
+        print(x.reset_coords()[name])
 
     if residuals:
         if not isinstance(residuals, str):
@@ -64,8 +65,8 @@ def linear_model(x, attr, xvars, fit_intercept=None, name=None,
         x[residuals] = (['time'], x[attr]-x[name])
         x[residuals].attrs['doc'] = 'Residuals for {:} based on LinearRegression model {:}'.format(attr, name)
         if not quiet:
-            print '\n****Model Residuals****'
-            print x.reset_coords()[residuals]
+            print('\n****Model Residuals****')
+            print(x.reset_coords()[residuals])
 
     return x
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import sys, os
 import traceback
@@ -51,7 +52,7 @@ def fit_attenuators(x, attr='BeamMonitor_intensity', name=None,
     x[name].attrs['doc'] = 'Attanuator thickness calculated from Gasdet corrected BeamMonitor_intensity'
     x[name].attrs['unit'] = 'um'
     
-    print 'Fitting attenuators based on BeamMonitor data'
+    print('Fitting attenuators based on BeamMonitor data')
     xvars = ['att01_in', 'att02_in', 'att03_in', 'att04_in', 'att05_in', 'att06_in']
     #x = RunSummary.psxarray.linear_model(x, 'BeamMonitor_thick_calc', xvars, 
     x = models.linear_model(x, name, xvars, 
@@ -99,7 +100,7 @@ def open(run=None, exp=exp, summary=False, chunk=False, **kwargs):
         try:
             x = make_cuts(x)
         except:
-            print 'Cannot make cuts'
+            print('Cannot make cuts')
             return x
         
         x = cleanup(x)
@@ -107,14 +108,14 @@ def open(run=None, exp=exp, summary=False, chunk=False, **kwargs):
             x = psxarray.to_summary(x, save_summary=True)
         return x
     except:
-        print 'Cannot load run {:} for {:}'.format(run, exp)
+        print('Cannot load run {:} for {:}'.format(run, exp))
         traceback.print_exc()
 
 def to_hdf5(x, **kwargs):
     try:
         psxarray.to_h5netcdf(x, **kwargs)
     except:
-        print 'Cannot save to h5'
+        print('Cannot save to h5')
         traceback.print_exc()
 
 def DataSource(run=None, exp=exp, publish=False, projection=False, save_config=False, **kwargs):
@@ -192,13 +193,13 @@ def to_xarray(ds=None, max_size=100001, **kwargs):
     try:
         x = make_cuts(x)
     except:
-        print 'Cannot make cuts'
+        print('Cannot make cuts')
         #traceback.print_exc()
     
     try:
         x = cleanup(x)
     except:
-        print 'Cannot cleanup data'
+        print('Cannot cleanup data')
         #traceback.print_exc()
 
     return x
@@ -217,7 +218,7 @@ def summary_html(a, ioff=True, exp_path=exp_path):
         a.attrs['scan_variables'] = ['atten_corr']
 
     path=os.path.join(exp_path, 'RunSummary')
-    print path
+    print(path)
     b = Build_html(a, path=os.path.join(exp_path, 'RunSummary'))
 
 
@@ -287,7 +288,7 @@ def add_atten(self, xaxis='atten_trans1_axis', logx=True, logy=False, howto=None
         p = ((c['mean'])*float(i)).plot(logx=logx,**kwargs)
         #p = ((2-x['atten_s{:02}'.format(i)].sel(stat='mean'))*float(i)).plot(**kwargs)
     
-    print catagory, plt_type
+    print(catagory, plt_type)
     self.add_plot(catagory, plt_type, howto=howto)
     if table is not None:
         self.results[catagory]['table'].update({'Attenuators':{'DataFrame': table, 
@@ -313,7 +314,7 @@ def make_summary(run=None, exp=exp, ds=None, nevents=None,
         x = open(run=run, exp=exp, **kwargs)
 
     if x is None:
-        print 'to_xarray', nevents, nchunks, ichunk,eventCodes, max_size
+        print('to_xarray', nevents, nchunks, ichunk,eventCodes, max_size)
         x = to_xarray(ds, nevents=nevents, nchunks=nchunks, ichunk=ichunk, 
                 eventCodes=eventCodes, max_size=max_size, **kwargs)
         
@@ -324,13 +325,13 @@ def make_summary(run=None, exp=exp, ds=None, nevents=None,
                 fit = fit
             x = make_cuts(x, fit=fit)
         except:
-            print 'Cannot make cuts'
+            print('Cannot make cuts')
             traceback.print_exc()
         
         try:
             x = cleanup(x)
         except:
-            print 'Cannot cleanup data'
+            print('Cannot cleanup data')
             traceback.print_exc()
 
     if save:
@@ -338,14 +339,14 @@ def make_summary(run=None, exp=exp, ds=None, nevents=None,
             psxarray.to_h5netcdf(x)
         except:
             psxarray.write_file(x)
-            print 'Cannot save to h5 -- writing picke file instead'
+            print('Cannot save to h5 -- writing picke file instead')
             traceback.print_exc()
 
     if build and ichunk is None:
         try:
             b = build_html(x)
         except:
-            print 'Cannot build html'
+            print('Cannot build html')
 
     return x
 
@@ -509,7 +510,7 @@ def build_html(x, add_scatter=False, do_inline=False):
         group = 'Gasdet_post_atten_index'
         for catagory, grp_attrs in attr_groups.items():
             attrs = ['EBeam_ebeamPhotonEnergy', 'Gasdet_post_atten', 'BeamMonitor_sum']
-            print group, catagory
+            print(group, catagory)
             for attr in grp_attrs:
                 attrs.append(attr)
             howto = []
@@ -540,19 +541,19 @@ def main():
     """Main script to create run summary.
     """
     time0 = time.time()
-    print time0
+    print(time0)
     args = RunSummary.initArgs()
-    print args
+    print(args)
     
     import sys
-    print sys.path
+    print(sys.path)
 
     import psana
-    print psana.__path__
+    print(psana.__path__)
     import xarray
-    print xarray.__path__
+    print(xarray.__path__)
     import pylab
-    print pylab.__file__
+    print(pylab.__file__)
 
     x = make_summary(build=False, fit=False, **vars(args))
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import argparse
 
@@ -58,7 +59,7 @@ if __name__ == "__main__":
         from build_html import Build_html
         import h5write
         x = h5write.open_h5netcdf(exp=exp,run=run)
-        print x
+        print(x)
         b = Build_html(x, auto=True)
    
     elif attr in ['beam_stats']:
@@ -83,7 +84,7 @@ if __name__ == "__main__":
             build_html='basic'
 
         if attr == 'summary':
-            print ds.configData
+            print(ds.configData)
             es = ds.exp_summary
             if es:
                 try:
@@ -97,29 +98,29 @@ if __name__ == "__main__":
                     print('Cannot build beam ststs run summary report')
 
             else:
-                print 'Failed to load or generate exp_summary'
+                print('Failed to load or generate exp_summary')
 
         if attr == 'epics':
-            print ds.configData
+            print(ds.configData)
             es = ds.exp_summary
             if es:
                 es.to_html()
             else:
-                print 'Failed to load or generate exp_summary'
+                print('Failed to load or generate exp_summary')
         if attr == 'config':
-            print ds._get_config_file()
+            print(ds._get_config_file())
         if attr == 'run':
-            print ds.data_source.run
+            print(ds.data_source.run)
         if attr == 'runstr':
-            print 'Run{:04}'.format(ds.data_source.run)
+            print('Run{:04}'.format(ds.data_source.run))
         if attr == 'configData':
-            print ds.configData.show_info()
+            print(ds.configData.show_info())
         if attr in ['steps','nsteps']:
-            print ds.configData.ScanData.nsteps        
+            print(ds.configData.ScanData.nsteps)        
         if attr in ['events','nevents']:
-            print ds.nevents        
+            print(ds.nevents)        
         if attr in ['scan']:
-            print ds.configData.ScanData.show_info()
+            print(ds.configData.ScanData.show_info())
         if attr in ['plot']:
             dets = ds.configData._config_srcs.keys()
             detstr = args.det
@@ -199,20 +200,20 @@ if __name__ == "__main__":
 
         if attr in ['mpi']:
             from h5write import to_hdf5_mpi
-            print ds.configData
-            print 'to hdf5 with mpi {:}'.format(args)
+            print(ds.configData)
+            print('to hdf5 with mpi {:}'.format(args))
             if args.config and args.config not in ['auto', 'default']:
-                print 'Loading config: {:}'.format(args.config)
+                print('Loading config: {:}'.format(args.config))
                 ds.load_config(file_name=args.config)
             else:
-                print 'Auto config'
+                print('Auto config')
                 ds.load_config()
 
             if not args.keep_chunks:
-                print 'Cleanup chunked files'
+                print('Cleanup chunked files')
                 cleanup = True
             else:
-                print 'DO NOT Cleanup chunked files after merging'
+                print('DO NOT Cleanup chunked files after merging')
                 cleanup = False
 
             x = to_hdf5_mpi(ds, nevents=args.nevents, nchunks=args.nchunks, 
@@ -223,56 +224,56 @@ if __name__ == "__main__":
             if args.config:
                 if args.config in ['auto', 'default']:
                     config = ds._get_config_file()
-                    print 'Loading default config: {:}'.format(config)
+                    print('Loading default config: {:}'.format(config))
                     ds.load_config()
                 else:
-                    print 'Loading config: {:}'.format(args.config)
+                    print('Loading config: {:}'.format(args.config))
                     ds.load_config(file_name=args.config)
             
             #write_hdf5(ds)
             x = ds.to_hdf5(build_html=build_html) 
-            print x
+            print(x)
         
         if attr in ['xarray']:
-            print 'to_xarray'
+            print('to_xarray')
             if args.config:
                 if args.config in ['auto', 'default']:
                     config = ds._get_config_file()
-                    print 'Loading default config: {:}'.format(config)
+                    print('Loading default config: {:}'.format(config))
                     ds.load_config()
                 else:
-                    print 'Loading config: {:}'.format(args.config)
+                    print('Loading config: {:}'.format(args.config))
                     ds.load_config(file_name=args.config)
             
-            print 'to_xarray...'
+            print('to_xarray...')
             x = ds.to_xarray(save=True, 
                              nevents=args.nevents, 
                              nchunks=args.nchunks, 
                              ichunk=args.ichunk,
                              build=args.build)
-            print x
+            print(x)
 
         if attr in ['test']:
             from h5write import write_hdf5
-            print ds.configData.__repr__()
-            print '-'*80
-            print ds._device_sets
-            print '-'*80
+            print(ds.configData.__repr__())
+            print('-'*80)
+            print(ds._device_sets)
+            print('-'*80)
             if args.config:
                 if args.config in ['auto', 'default']:
                     config = ds._get_config_file()
-                    print 'Loading default config: {:}'.format(config)
+                    print('Loading default config: {:}'.format(config))
                     ds.load_config()
                 else:
-                    print 'Loading config: {:}'.format(args.config)
+                    print('Loading config: {:}'.format(args.config))
                     ds.load_config(file_name=args.config)
             
-            print '-'*80
-            print ds._device_sets
-            print '-'*80
+            print('-'*80)
+            print(ds._device_sets)
+            print('-'*80)
             #write_hdf5(ds)
             x = ds.to_hdf5(nevents=100) 
-            print x
+            print(x)
  
 
     #print 'Total time = {:8.3f}'.format(time.time()-time0)

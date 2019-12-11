@@ -1,3 +1,4 @@
+from __future__ import print_function
 import markup
 from markup import oneliner as e
 import os, sys, re
@@ -227,7 +228,7 @@ class report:
             outfile.write(self.page(escape=False))
             outfile.close()
         else:
-            print self.page
+            print(self.page)
 
 def mk_table(dd):
     pg = markup.page()

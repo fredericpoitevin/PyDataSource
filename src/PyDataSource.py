@@ -81,6 +81,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 @author Koglin, Jason
 """
+from __future__ import print_function
 #------------------------------
 __version__ = "$Revision$"
 ##-----------------------------
@@ -209,7 +210,7 @@ def import_module(module_name, module_path):
         globals()[module_name] = imp.load_module(module_name, file, filename, desc)
         return
     except Exception as err:
-        print('import_module error', err)
+        print(('import_module error', err))
         print('ERROR loading {:} from {:}'.format(module_name, module_path))
         traceback.print_exc()
 
@@ -440,7 +441,7 @@ def psmon_publish(evt, quiet=True):
                     continue
 
                 if not quiet:
-                    print(eventCode, name, psmon_args)
+                    print((eventCode, name, psmon_args))
                 
                 if eventCode is None or eventCode in eventCodes:
                     psplot_func = psmon_args['plot_function']
@@ -467,10 +468,10 @@ def psmon_publish(evt, quiet=True):
                             else: krot = 1
                             image = np.rot90(image, krot)
                             if not quiet:
-                                print('rot90', krot)
+                                print(('rot90', krot))
                         
                         if not quiet:
-                            print(name, image, image.shape, psmon_args)
+                            print((name, image, image.shape, psmon_args))
                         
                         if image is not None:
                             psmon_fnc = Image(
@@ -549,7 +550,7 @@ class ScanData(object):
                 ttup = (evt.EventId.sec, evt.EventId.nsec, evt.EventId.fiducials)
                 okevt = ttup in ds._idx_times_tuple
                 if not quiet:
-                    print('step:', istep, evt)
+                    print(('step:', istep, evt))
 
             ievent = ds._idx_times_tuple.index(ttup)
             ievent_start.append(ievent)
@@ -1001,7 +1002,7 @@ class DataSource(object):
          
                     except:
                         traceback.print_exc()
-                        print('cannot get meta for', alias, attr)
+                        print(('cannot get meta for', alias, attr))
                         pass
                 vals = [item['val'] for item in dat['data']]
                 if not vals:
@@ -1015,7 +1016,7 @@ class DataSource(object):
                 try:
                     if isinstance(vals[0],str):
                         if not quiet:
-                            print(alias, 'string')
+                            print((alias, 'string'))
                         vals = np.array(vals, dtype=str)
                     else:
                         times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
@@ -1031,7 +1032,7 @@ class DataSource(object):
                 except:
                     traceback.print_exc()
                     if not quiet:
-                        print('Error loadinig', alias)
+                        print(('Error loadinig', alias))
 
                 if not quiet:
                     try:
@@ -1044,7 +1045,7 @@ class DataSource(object):
             except:
                 traceback.print_exc()
                 if not quiet:
-                    print('Error loading', alias)
+                    print(('Error loading', alias))
 
         xdata = xr.merge(data_arrays.values())
         if trans_pvs:
@@ -1333,7 +1334,7 @@ class DataSource(object):
                             OKadd = det.add.stats('corr', **kwargs)
                         except:
                             OKadd = False
-                        print(attr, OKadd)
+                        print((attr, OKadd))
                         if not OKadd:
                             det.next()
                             print(det)
@@ -1345,12 +1346,12 @@ class DataSource(object):
                     #    # currently just zyla
                     #    det.add.stats('data', **kwargs)
                     if OKadd:
-                        print('Added default stats for ', attr, str(det))
+                        print(('Added default stats for ', attr, str(det)))
                         print(det._det_config['stats'])
 
             except:
                 traceback.print_exc()
-                print('Cannot add stats for', attr)
+                print(('Cannot add stats for', attr))
 
     @property
     def stats(self):
@@ -1381,7 +1382,7 @@ class DataSource(object):
                             datasets.append(self._detectors[alias]._get_stats(attr, alias=aliases.get(alias)))
                         except:
                             traceback.print_exc()
-                            print('Cannot add stats for', alias, attr)
+                            print(('Cannot add stats for', alias, attr))
 
         if datasets == []:
             return None
@@ -1516,7 +1517,7 @@ class DataSource(object):
                 self.html = build_html.Build_html(x, auto=True) 
             except:
                 traceback.print_exc()
-                print('Could not build html run summary for', str(self))
+                print(('Could not build html run summary for', str(self)))
 
         return x
 
@@ -1577,7 +1578,7 @@ class DataSource(object):
                     self.html = build_html.Build_html(x, auto=True) 
                 except:
                     traceback.print_exc()
-                    print('Could not build html run summary for', str(self))
+                    print(('Could not build html run summary for', str(self)))
 
         return x
 
@@ -2026,7 +2027,7 @@ class DataSource(object):
                                            'module': module_dict.get('name'),
                                            'path': module_dict.get('path'),
                                            'desc': module_dict.get('desc')})
-                            print('add_detector', kwargs)
+                            print(('add_detector', kwargs))
                             try:
                                 self.add_detector(**kwargs)
                                 self.reload()
@@ -2049,7 +2050,7 @@ class DataSource(object):
                                     if a not in det_config[attr]:
                                         det_config[attr][a] = val
                                     else:
-                                        print(alias, attr, 'No overwrite', a, val)
+                                        print((alias, attr, 'No overwrite', a, val))
                         elif attr != 'stats':
                             det_config[attr] = config_dict
 
@@ -2062,7 +2063,7 @@ class DataSource(object):
                         detector = getattr(evt, alias)
                         for name, stat_item in stats_config.items():
                             attr = stat_item['attr']
-                            print('adding stats for', attr, name, )
+                            print(('adding stats for', attr, name, ))
                             detector.add.stats(attr, name=name)
                         self.reload()
         self.reload()
@@ -2461,7 +2462,7 @@ class StepEvents(object):
                 self._ds._current_evtData = {}
             
             except:
-                print(evt_time, 'is not a valid event time')
+                print((evt_time, 'is not a valid event time'))
         
         else:
             try:
@@ -2893,7 +2894,7 @@ class ConfigData(object):
                                       key_info=self._key_info, nolist=True)
                 self._config[attr] = config
             except:
-                print('WARNING:  Cannot load PsanaSrcData config for ', attr, keys)
+                print(('WARNING:  Cannot load PsanaSrcData config for ', attr, keys))
 
         self._sources = {}
         #Setup Partition
@@ -2930,7 +2931,7 @@ class ConfigData(object):
                 self.Partition = config
             else:
                 print('ERROR:  More that one Partition module in configStore data.')
-                print('       ', self._modules['Partition'][type_name])
+                print(('       ', self._modules['Partition'][type_name]))
                 return
 
     # to convert ipAddr int to address 
@@ -4312,7 +4313,7 @@ class Detector(object):
                                 self.next()
                                 dims_dict = {'raw': (['X', 'Y'], self.raw.shape)}
                             except:
-                                print('Error adding dims for ', str(self))
+                                print(('Error adding dims for ', str(self)))
 
         # temporary fix for Quartz camera not in PyDetector class
         elif self._pydet is not None and hasattr(self._pydet, 'dettype') \
@@ -4320,7 +4321,7 @@ class Detector(object):
             try:
                 dims_dict = {'data8': (['X', 'Y'], self.data8.shape)}
             except:
-                print(str(self), 'Not valid data8')
+                print((str(self), 'Not valid data8'))
         
         else:
             dims_dict = {}
@@ -5267,7 +5268,7 @@ class AddOn(object):
             img = img[sensor]
             if not roi:
                 roi = ((0,img.shape[0]), (0,img.shape[1]))
-            print(sensor, roi)
+            print((sensor, roi))
 
         if axis in _polar_axes:
             if not method:
@@ -5508,7 +5509,7 @@ class AddOn(object):
             try:
                 plotMax = np.percentile(img, 99.5)
                 plotMin = np.percentile(img, 5)
-                print('using the 5/99.5% as plot min/max: (',plotMin,',',plotMax,')')
+                print(('using the 5/99.5% as plot min/max: (',plotMin,',',plotMax,')'))
                 fig=plt.figure(figsize=(20,10))
                 gs=plt.matplotlib.gridspec.GridSpec(1,2,width_ratios=[2,1])
                 plt.subplot(gs[0]).imshow(img,clim=[plotMin,plotMax],interpolation='None')
@@ -5517,7 +5518,7 @@ class AddOn(object):
                 p = np.array(ginput(2))
                 roi = ([int(p[:,1].min()),int(p[:,1].max())],
                        [int(p[:,0].min()),int(p[:,0].max())])
-                print('Selected ROI [y, x] =', roi)
+                print(('Selected ROI [y, x] =', roi))
             except:
                 print('Cannot get roi')
                 return None
@@ -5693,10 +5694,10 @@ class AddOn(object):
             dims = self._det_config['xarray'].get('dims', {}).get('raw', {})
         try:
             if dims[1] != img.shape:
-                print('Fixing stat dims for ', attr, img.shape, dims)
+                print(('Fixing stat dims for ', attr, img.shape, dims))
                 dims[1] = img.shape
         except:
-            print('Cannot update stat dims for ', attr, dims)
+            print(('Cannot update stat dims for ', attr, dims))
 
         all_coords = self._det_config['xarray'].get('coords', {})
         #coords = {dim: coord for dim, coord in all_coords.items() if dim in dims[0]}
@@ -5972,7 +5973,7 @@ class AddOn(object):
                 attr = 'waveform'
                 if ichannel is None and not name:
                     for i in range(self._det.waveform.shape[0]):
-                        print('adding ichannel', i)
+                        print(('adding ichannel', i))
                         self.peak(ichannel=i, xaxis=xaxis, roi=roi, scale=scale, 
                                   theshold=threshold, baseline=baseline, methods=None,
                                   docs=docs,units=units)
@@ -7498,9 +7499,9 @@ def _update_stats(evt):
                             if not fec.shape or fec.shape == vals.shape:
                                 fec(vals)
                             else:
-                                print('stats update error', det._alias, name, attr, ec, istep, vals)
+                                print(('stats update error', det._alias, name, attr, ec, istep, vals))
                         except:
-                            print('stats update error', det._alias, name, attr, ec, istep, vals)
+                            print(('stats update error', det._alias, name, attr, ec, istep, vals))
 #            else:
 #                print alias, name, attr, vals
 

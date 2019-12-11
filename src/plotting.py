@@ -1,5 +1,6 @@
 """Plotting methods for use with xarray and pandas used in RunSummary.
 """
+from __future__ import print_function
 
 from pylab import *
 
@@ -8,7 +9,7 @@ def xy_ploterr(a, attr=None, xaxis=None, title='', desc=None, fmt='o', **kwargs)
         xy_ploterr(x, 'MnScatter','Sample_z',logy=True)
     """
     if not attr:
-        print 'Must supply plot attribute'
+        print('Must supply plot attribute')
         return
 
     if 'groupby' in kwargs:
@@ -98,6 +99,6 @@ def xy_ploterr(a, attr=None, xaxis=None, title='', desc=None, fmt='o', **kwargs)
 
         return p 
     else:
-        print 'Too many dims to plot'
+        print('Too many dims to plot')
 
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 import logging
@@ -293,7 +294,7 @@ class Build_experiment(object):
         stend = '{:}-{:02}-{:02}T{:02}:{:02}:{:02}Z'.format(*es._tend)
 
         for det in dets:
-            print('Try plot_move', det)
+            print(('Try plot_move', det))
             if isinstance(dets, dict):
                 attrs = dets[det]
             else:
@@ -334,7 +335,7 @@ class Build_experiment(object):
                 doc='Set of runs where {:} was moved between runs.'.format(attr)
                 attr_cat = 'Scan Series'
                 tbl_type = '{:} Runs {:}-{:}'.format(attr, rns[0], rns[1])
-                print 'Adding', tbl_type
+                print('Adding', tbl_type)
                 self.add_table(df, attr_cat, tbl_type, tbl_type, doc=doc, howto=howto, hidden=False)
 
     def add_scans(self, dets=None, min_steps=4, **kwargs):
@@ -400,7 +401,7 @@ class Build_experiment(object):
                 plt.tight_layout()
             except:
                 # seems like tight_layout does not work with add_detector 
-                print('cannot make tight', catagory, plt_type)
+                print(('cannot make tight', catagory, plt_type))
         
         try:
             self._add_catagory(catagory)
@@ -442,7 +443,7 @@ class Build_experiment(object):
         elif path == 'scratch':
             path = os.path.join(self.scratch_dir, 'RunSummary')
         
-        print('Setting output path to', path)
+        print(('Setting output path to', path))
 
         self.path = path
         self.filename = filename
@@ -486,7 +487,7 @@ class Build_experiment(object):
         self._add_html()
         self._close_html()
         if not quiet:
-            print('Writing html to: ', os.path.join(self.html.output_dir, self.html.output_file))
+            print(('Writing html to: ', os.path.join(self.html.output_dir, self.html.output_file)))
 
     def _init_html(self, path=None, **kwargs):
         """
@@ -685,7 +686,7 @@ class Build_experiment(object):
         elif kwargs.get('logx'):
             plt_type+=' lin-log'
 
-        print(catagory, plt_type)
+        print((catagory, plt_type))
         self.add_plot(catagory, plt_type, howto=howto, tight=False)
         if table is not None:
             self.results[catagory]['table'].update({attr:{'DataFrame': table, 
@@ -833,7 +834,7 @@ class Build_html(object):
         elif path == 'scratch':
             path = os.path.join(self.scratch_dir, 'RunSummary')
         
-        print('Setting output path to', path)
+        print(('Setting output path to', path))
 
         self.path = path
         if not filename:
@@ -949,12 +950,12 @@ class Build_html(object):
             print(cuts)
             for cut in cuts:
                 if cut in self._xdat and self._xdat[cut].sum() >= min_in_cut: 
-                    print('adding', cut)
+                    print(('adding', cut))
                     try:
                         self.add_correlations(cut=cut)
                     except:
                         traceback.print_exc()
-                        print('Cannot add correlelations for cut', cut)
+                        print(('Cannot add correlelations for cut', cut))
         else:
             try:
                 self.add_correlations()
@@ -975,7 +976,7 @@ class Build_html(object):
 
         for alias in self.aliases:
             if not quiet:
-                print('adding detector', alias)
+                print(('adding detector', alias))
            
             if cuts:
                 for cut in cuts:
@@ -996,13 +997,13 @@ class Build_html(object):
                     self.add_summary(attrs, groupby=False)
                 except:
                     traceback.print_exc()
-                    print('Could not add summary', attrs)
+                    print(('Could not add summary', attrs))
                 if groupby:
                     try:
                         self.add_summary(attrs, groupby=groupby)
                     except:
                         traceback.print_exc()
-                        print('Could not add summary', attrs)
+                        print(('Could not add summary', attrs))
         
         self.add_counts()
         self.add_axis_plots()
@@ -1012,7 +1013,7 @@ class Build_html(object):
             attrs = [a for a in self._xdat.data_vars.keys() \
                     if 'stat' in self._xdat[a].dims and len(self._xdat[a].dims) in [5,6]]
             for attr in attrs:
-                print('adding stats for ', attr)
+                print(('adding stats for ', attr))
                 if nevents > 4:
                     self.add_stats(attr, **kwargs)
 
@@ -1208,7 +1209,7 @@ class Build_html(object):
                     if ttest.pvalue < 1e-5: 
                         hue = 'ec141'
                 except:
-                    print('error ttest_gropuby', attr, 'ec141' )
+                    print(('error ttest_gropuby', attr, 'ec141' ))
 
             if hue:
                 sns.violinplot(x=xattr, y=attr, data=df_nearest, hue=hue, split=True,inner='quart')
@@ -1525,7 +1526,7 @@ class Build_html(object):
             attrs0 = [attr for attr in attrs]
        
         if not attrs0:
-            print('No scalar data for ', alias)
+            print(('No scalar data for ', alias))
             return
 
         if groupby:
@@ -1630,7 +1631,7 @@ class Build_html(object):
 
             except:
                 traceback.print_exc()
-                print('Could not build df to describe ', attrs)
+                print(('Could not build df to describe ', attrs))
                 print(xselect)
 
             # Make groupby plots
@@ -1713,7 +1714,7 @@ class Build_html(object):
                     except:
                     #except:
                         traceback.print_exc()
-                        print('Failed adding:', group)
+                        print(('Failed adding:', group))
                         plt.cla()
                         plt.close()
 
@@ -1792,14 +1793,14 @@ class Build_html(object):
                             scat_attrs.append(attr)
 
                     if len(scat_attrs) > max_scatter:
-                        print('Too many parameters to make scatter plots:', scat_attrs)
+                        print(('Too many parameters to make scatter plots:', scat_attrs))
                     elif len(scat_attrs)-len(groupby) > 1:
                         try:
                             dfscat = dfcut[scat_attrs]
                         except:
                             plt.cla()
                             plt.close()
-                            print(scat_group, 'make_scatter failed')
+                            print((scat_group, 'make_scatter failed'))
                             return dfcut
 
                         try:
@@ -1944,7 +1945,7 @@ class Build_html(object):
         elif kwargs.get('logx'):
             plt_type+=' lin-log'
 
-        print(catagory, plt_type)
+        print((catagory, plt_type))
         self.add_plot(catagory, plt_type, howto=howto, tight=False)
         if table is not None:
             self.results[catagory]['table'].update({attr:{'DataFrame': table, 
@@ -1999,7 +2000,7 @@ class Build_html(object):
             group = 'XrayOn'
         
         if group not in x:
-            print(group, 'is not a valid group -- ignoring group keyword')
+            print((group, 'is not a valid group -- ignoring group keyword'))
             group = None
 
         if not howto:
@@ -2037,7 +2038,7 @@ class Build_html(object):
             for attr in grp_attrs:
                 gattrs.append(attr)
             ghowto = howto
-            print(catagory, gattrs, group, ghowto)
+            print((catagory, gattrs, group, ghowto))
             self.add_scatter(df, catagory=catagory, attrs=gattrs, howto=ghowto, group=group)
 
     def make_damage_cut(self, charge_min=1., 
@@ -2137,7 +2138,7 @@ class Build_html(object):
                 plt.tight_layout()
             except:
                 # seems like tight_layout does not work with add_detector 
-                print('cannot make tight', catagory, plt_type)
+                print(('cannot make tight', catagory, plt_type))
         self._add_catagory(catagory)
         plt_file = '{:}_{:}.png'.format(catagory, plt_type).replace(' ','_') 
         self.results[catagory]['figure'].update({plt_type:  {'path': self.output_dir, 
@@ -2313,7 +2314,7 @@ class Build_html(object):
                 if not isinstance(groupby, list) and not hasattr(groupby, 'shape'):
                     groupby = [groupby]
                 for group in groupby:
-                    print('Make groupby plots for', group)
+                    print(('Make groupby plots for', group))
                     xdat = self._xdat[attr]
                     x_group = xdat.groupby(group).mean(dim='time')
                     howto = ["plt.rcParams['axes.labelsize'] = {:}".format(24)]
@@ -2377,7 +2378,7 @@ class Build_html(object):
             
             else:
                 nax = len(self._xdat[attr].shape)
-                print(nax, attr)
+                print((nax, attr))
                 if nax == 2:
     #                self._xdat[attr].mean(axis=0).plot()
     #                plt_type = '{:} summary'.format(attr.lstrip(alias+'_')) 
@@ -2412,7 +2413,7 @@ class Build_html(object):
                             self.add_plot(alias, plt_type, howto=howto)
                         except:
                             traceback.print_exc()
-                            print('scatter matrix plot failed for', alias)
+                            print(('scatter matrix plot failed for', alias))
 
                     else:
                         self._xdat[attr].plot()
@@ -2677,7 +2678,7 @@ class Build_html(object):
                 print("add_stats only valid for objects with dimensions ('stat','step','codes', xdim, ydim)")
                 return
         else:
-            print('No stats available for', attr)
+            print(('No stats available for', attr))
             return
 
         if 'alias' in xdat.attrs:
@@ -2736,7 +2737,7 @@ class Build_html(object):
                     if 'codes' not in xstat.coords:
                         xstat.coords['codes'] = xcodes
                 except:
-                    print('Cannot make image', attr, stat)
+                    print(('Cannot make image', attr, stat))
                     continue
 
            #print 'det_summary', attr, attr_codes, stat
@@ -2773,7 +2774,7 @@ class Build_html(object):
                 
             else:
                 if xstat.shape[1] > nlines:
-                    print('doing image', stat)
+                    print(('doing image', stat))
                     for code in attr_codes:
                         plt.cla()
                         #plt.figure(figsize=(16,14))
@@ -2806,7 +2807,7 @@ class Build_html(object):
                     if len(attr_codes) > 1:
                         plt_dim = xstat.dims[1]
                         for ich, ch in enumerate(xstat[plt_dim]):
-                            print(ich, ch)
+                            print((ich, ch))
                             plt.cla()
                             xstat[:,ich,:].to_pandas().T.plot()
                             howto = []
@@ -2967,7 +2968,7 @@ class Build_html(object):
 
                     except:
                         traceback.print_exc()
-                        print('cannot add ', catagory, plt_type)
+                        print(('cannot add ', catagory, plt_type))
     #
 #                da.squeeze('codes').to_pandas().plot()
 #                howto.append("da.squeeze('codes').plot()")
@@ -3092,7 +3093,7 @@ class Build_html(object):
         self._add_html()
         self._close_html()
         if not quiet:
-            print('Writing html to: ', os.path.join(self.html.output_dir, self.html.output_file))
+            print(('Writing html to: ', os.path.join(self.html.output_dir, self.html.output_file)))
 
 
     def _init_html(self, path=None, subtitle=None, **kwargs):
@@ -3158,7 +3159,7 @@ class Build_html(object):
         if report_notes:
             if isinstance(report_notes, list):
                 report_notes = '\n'.join(report_notes)
-            print report_notes
+            print(report_notes)
             self.html.start_subblock('Report Notes')
             self.html.add_textblock(report_notes)
             self.html.end_subblock()

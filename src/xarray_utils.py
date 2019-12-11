@@ -1,3 +1,4 @@
+from __future__ import print_function
 def to_summary(x, dim='time', groupby='step', 
         save_summary=False,
         normby=None,
@@ -126,9 +127,9 @@ def normalize_data(x, variables=[], norm_attr='PulseEnergy', name='norm', quiet=
                     x[aname].attrs['unit'] = '/'.join([units, norm_units])
             except:
                 if not quiet:
-                    print 'cannot add attrs for', aname
+                    print('cannot add attrs for', aname)
         except:
-            print 'Cannot normalize {:} with {:}'.format(attr, norm_attr)
+            print('Cannot normalize {:} with {:}'.format(attr, norm_attr))
 
     return  resort(x)
 
@@ -223,17 +224,17 @@ def add_butterworth_filter(x, attr, lowcut=None, highcut=None, order=10,
     if drop_attr and drop_attr in x:
         cut = ~x[drop_attr]
         if not quiet:
-            print('drop sum', cut.sum())
+            print(('drop sum', cut.sum()))
         if threshold:
             cut =  xr.ufuncs.logical_and(cut, x[attr]>threshold)
             if not quiet:
-                print('threshold cut', cut.sum())
+                print(('threshold cut', cut.sum()))
     
         if norm_attr and norm_attr in x:
             if norm_threshold:
                 cut =  xr.ufuncs.logical_and(cut, x[norm_attr]>norm_threshold)
                 if not quiet:
-                    print('norm threshold cut', cut.sum())
+                    print(('norm threshold cut', cut.sum()))
      
             dfnorm = x[[norm_attr]].where(cut).reset_coords()[norm_attr].to_dataframe()
             dfnorm0 = x[[norm_attr]].reset_coords()[norm_attr].to_dataframe()
@@ -380,7 +381,7 @@ def xy_ploterr(a, attr=None, xaxis=None, title='', desc=None,
     """
     import matplotlib.pyplot as plt
     if not attr:
-        print 'Must supply plot attribute'
+        print('Must supply plot attribute')
         return
 
     if 'groupby' in kwargs:
@@ -470,7 +471,7 @@ def xy_ploterr(a, attr=None, xaxis=None, title='', desc=None,
 
         return p 
     else:
-        print 'Too many dims to plot'
+        print('Too many dims to plot')
 
 def ttest_groupby(xo, attr, groupby='ec162', ishot=0, nearest=None, verbose=False):
     """
@@ -501,7 +502,7 @@ def ttest_groupby(xo, attr, groupby='ec162', ishot=0, nearest=None, verbose=Fals
         return ttest
     else:
         if verbose:
-            print '{:} has only one group -- cannot compare'.format(attr)
+            print('{:} has only one group -- cannot compare'.format(attr))
         return None
 
 def test_correlation(x, attr0, attr1='Gasdet_post_atten', cut=None, shift=None, dim='time'):
@@ -609,7 +610,7 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
             continue
 
         #if verbose:
-        print '*****', attr, '*******'
+        print('*****', attr, '*******')
         attrs = [attr, groupby, pulse]
         if cut:
             if cut in xds:
@@ -649,7 +650,7 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
             attest[idelta] = ttest
             if ttest is None:
                 if verbose:
-                    print attr, groupby, 'Not valid test'
+                    print(attr, groupby, 'Not valid test')
                 continue
          
             # Do not test correlation of same attr
@@ -761,7 +762,7 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
                     note = 'Beam-corr  of {:5.3f}'.format(beam_corr)
                     corr_note = '{:} on {:2} shot for {:} detector {:} (corr = {:}, c_pvalue = {:})'.format(note, shot_corr, 
                                 alias, attr, beam_corr, c_pvalue)
-                    print corr_note
+                    print(corr_note)
 
             except:
                 shot_corr = 0
@@ -791,7 +792,7 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
                 
                 shot_note = '{:} on {:2} shot for {:} detector {:} (t_pvalue={:})'.format(note, ishot, 
                         alias, attr, t_pvalue)
-                print shot_note
+                print(shot_note)
 
 
             #xstats[attr] = ((corr_coord,'drop_stats'), df_stats)
@@ -799,9 +800,9 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
 
         except:
             traceback.print_exc()
-            print 'xmean', xmean
-            print 'xstd', xstd
-            print 'Cannot calc stats for', attr, ishot
+            print('xmean', xmean)
+            print('xstd', xstd)
+            print('Cannot calc stats for', attr, ishot)
         
     for avar, da in xo.data_vars.items():
         try:
@@ -1158,7 +1159,7 @@ def add_transmission(xdata, exp=None, run=None):
         else:
             print('exp must be specified or in Dataset attrs')
             return
-    print exp
+    print(exp)
     
     if not run:
         if 'run' in xdata.attrs:
@@ -1195,7 +1196,7 @@ def add_moved_pvs(xdata, exp=None, run=None):
         else:
             print('exp must be specified or in Dataset attrs')
             return
-    print exp
+    print(exp)
     
     if not run:
         if 'run' in xdata.attrs:

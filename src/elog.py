@@ -1,3 +1,4 @@
+from __future__ import print_function
 import psutils
 
 class elog(object):
@@ -81,7 +82,7 @@ def post(_message, name='current', **kwargs):
                 ['ws_base_url', 'ws_login_user', 'ws_login_password', 'child_cmd']} 
         elog._elogs[name].post(_message, **elog_args)
     else:
-        print 'No elog to post to called', name
+        print('No elog to post to called', name)
 
 def instrument_post(_message, **kwargs):
     """Post message into instrument elog.

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # standard python modules
 import os
 import operator
@@ -115,7 +116,7 @@ def read_netcdfs(files, dim='time', transform_func=None, engine='h5netcdf'):
             datasets.append(xo)
             xattrs = xo.attrs
         except:
-            print 'Cannot open {:}'.format(p)
+            print('Cannot open {:}'.format(p))
     
     x = resort(xr.concat(datasets, dim))
     x.attrs.update(**xattrs)
@@ -379,7 +380,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                 nevents = int(np.ceil(ds.nevents/float(nchunks)))
                 ievent0 = (ichunk-1)*nevents
             
-            print 'Do {:} of {:} events for {:} chunk'.format(nevents, ds.nevents, ichunk)
+            print('Do {:} of {:} events for {:} chunk'.format(nevents, ds.nevents, ichunk))
         else:
             nevents = ds.nevents
  
@@ -400,7 +401,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
             
             detector = getattr(evt,det)
             if hasattr(detector, '_update_xarray_info'):
-                print 'updating', srcstr, det
+                print('updating', srcstr, det)
                 detector._update_xarray_info()
 
             # Note that the a and b objects here link the det_funcs dictionary 
@@ -432,7 +433,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                         det_funcs[det][attr]['event'] = {'dims': a, 'shape': b}
 
         except:
-            print 'ERROR loading', srcstr, det
+            print('ERROR loading', srcstr, det)
             traceback.print_exc()
 
     axdat = {}
@@ -456,7 +457,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
               'run': 'int32'}
     
     # explicitly order EventId coords in desired order 
-    print 'Begin processing {:} events'.format(nevents)
+    print('Begin processing {:} events'.format(nevents))
     for attr in ['sec', 'nsec', 'fiducials', 'ticks', 'run']:
         #dtyp = ttypes[attr]
         #xbase.coords[attr] = (['time'], np.zeros(nevents,dtype=dtyp))
@@ -540,7 +541,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                         if item:
                             attrs_info.update({a: item[a] for a in ['doc', 'unit']})
                     else:
-                        print 'No data for {:} in {:}'.format(str(detector), attr)
+                        print('No data for {:} in {:}'.format(str(detector), attr))
                 
                 else:
                     if detector._calib_class is not None:
@@ -575,10 +576,10 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                         else:
                             axdat[det].coords[det+'_'+coord] = item
                     except:
-                        print det, coord, item
+                        print(det, coord, item)
 
     ds.reload()
-    print 'xarray Dataset configured'
+    print('xarray Dataset configured')
 
     time0 = time.time()
     igood = -1
@@ -592,16 +593,16 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
         aievents[det] = []
   
     if ichunk is not None:
-        print 'Making chunk {:}'.format(ichunk)
-        print 'Starting with event {:} of {:}'.format(ievent0,ds.nevents)
-        print 'Analyzing {:} events'.format(nevents)
+        print('Making chunk {:}'.format(ichunk))
+        print('Starting with event {:} of {:}'.format(ievent0,ds.nevents))
+        print('Analyzing {:} events'.format(nevents))
         xbase.attrs['ichunk'] = ichunk
         # Need to update to jump to event.
         if ichunk > 1 and not chunk_steps:
             for i in range(ievent0):
                 evt = ds.events.next()
         
-            print 'Previous event before current chunk:', evt
+            print('Previous event before current chunk:', evt)
 
     if ichunk is not None:
         evtformat = '{:10.1f} sec, Event {:} of {:} in chunk with {:} accepted'
@@ -612,7 +613,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
     for ievt in range(nevents):
         ievent = ievent0+ievt
         if ievt > 0 and (ievt % 100) == 0:
-            print evtformat.format(time.time()-time0, ievt, nevents, igood+1)
+            print(evtformat.format(time.time()-time0, ievt, nevents, igood+1))
         
         if ichunk > 0 and chunk_steps:
             if ievt == 0:
@@ -663,7 +664,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                 val = float(ds.epicsData.getPV(pv).data()) 
                 pvarray.update({dtime: val})
             except:
-                print 'cannot update pv', pv, dtime
+                print('cannot update pv', pv, dtime)
 
         for det in evt._attrs:
             detector = evt._dets.get(det)
@@ -681,8 +682,8 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                         
                         axdat[det][alias][ievt] = vals
                     except:
-                        print 'Event Error', alias, det, attr, ievent, vals
-                        print axdat[det][alias][ievt].shape, vals.shape
+                        print('Event Error', alias, det, attr, ievent, vals)
+                        print(axdat[det][alias][ievt].shape, vals.shape)
                         vals = None
 
     xbase = xbase.isel(time=range(len(btimes)))
@@ -703,7 +704,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
    
     if drop_unused_codes:
         for ec in eventCodes:
-            print 'Dropping unused eventCode', ec
+            print('Dropping unused eventCode', ec)
             if not xbase['ec{:}'.format(ec)].any():
                 xbase = xbase.drop('ec{:}'.format(ec))
 
@@ -712,7 +713,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
         try:
             xbase.attrs.update({pv: ds.epicsData.getPV(pv).data()[0]})
         except:
-            print 'cannot att epics_attr', pv
+            print('cannot att epics_attr', pv)
             traceback.print_exc()
 
     # cut down size of xdat
@@ -721,7 +722,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
         nevents = len(atimes[det])
         if nevents > 0 and det in axdat:
             try:
-                print 'merging', det, nevents
+                print('merging', det, nevents)
                 xdat = axdat.pop(det)
                 if 'time' in xdat.dims:
                     xdat = xdat.isel(time=range(nevents))
@@ -731,7 +732,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                 xbase = xbase.merge(xdat)
             
             except:
-                print 'Could not merge', det
+                print('Could not merge', det)
                 return xbase, xdat, axdat, atimes, btimes
 
     attrs = [attr for attr,item in xbase.data_vars.items()] 
@@ -751,7 +752,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
         try:
             to_h5netcdf(xbase)
         except:
-            print 'Could not save to_h5netcdf'
+            print('Could not save to_h5netcdf')
 
     return xbase
 
@@ -776,9 +777,9 @@ def normalize_data(x, variables=[], norm_attr='PulseEnergy', name='norm', quiet=
                     x[aname].attrs['unit'] = '/'.join([units, norm_units])
             except:
                 if not quiet:
-                    print 'cannot add attrs for', aname
+                    print('cannot add attrs for', aname)
         except:
-            print 'Cannot normalize {:} with {:}'.format(attr, norm_attr)
+            print('Cannot normalize {:} with {:}'.format(attr, norm_attr))
 
     return  resort(x)
 
@@ -845,7 +846,7 @@ def xy_ploterr(a, attr=None, xaxis=None, title='', desc=None, fmt='o', **kwargs)
     import numpy as np
     import matplotlib.pyplot as plt
     if not attr:
-        print 'Must supply plot attribute'
+        print('Must supply plot attribute')
         return
 
     if 'groupby' in kwargs:
@@ -929,7 +930,7 @@ def xy_ploterr(a, attr=None, xaxis=None, title='', desc=None, fmt='o', **kwargs)
 
         return p 
     else:
-        print 'Too many dims to plot'
+        print('Too many dims to plot')
 
 def make_image(self, pixel=.11, ix0=None, iy0=None):
     """Return image from 3-dim detector DataArray."""

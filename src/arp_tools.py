@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Basic 
 
 def post_report(exp, run, report_list=[], report_name=None, weblink=None):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 class Message(object):
     """Message class for printing messages and posting messages to the elog.
@@ -85,7 +86,7 @@ class Message(object):
                 to_name = ','.join(to_names)
 
         if not isinstance(to_name, str):
-            print('Not valid to_name:', to_name)
+            print(('Not valid to_name:', to_name))
             return None
 
         try:
@@ -111,7 +112,7 @@ class Message(object):
             
             for line in lines:
                 if not kwargs.get('quiet') and not self._quiet:
-                    print line
+                    print(line)
                 self._message.append(line)
 
     def new(self, *args, **kwargs):
@@ -126,7 +127,7 @@ class Message(object):
         self.add(*args, **kwargs)
 
     def show(self, **kwargs):
-        print self.__str__()
+        print(self.__str__())
 
     def __len__(self):
         return len(self._message)

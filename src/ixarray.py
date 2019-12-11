@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import argparse
 import sys
 import IPython
@@ -37,7 +38,7 @@ def open_h5netcdf(file_name=None, path='', instrument=None, exp=None, run=None, 
     if chunk:
         if not file_name:
             file_name = '{:}run{:04}*.nc'.format(path, int(run))
-        print file_name
+        print(file_name)
         return xarray.open_mfdataset(file_name, engine='h5netcdf')
     else:
         if not file_name:
@@ -49,10 +50,10 @@ def open_h5netcdf(file_name=None, path='', instrument=None, exp=None, run=None, 
 
 
 def banner(x, base='x', time0=None):
-    print x
-    print '='*80
-    print 'See http://xarray.pydata.org for details on how to use data:'
-    print '='*80
+    print(x)
+    print('='*80)
+    print('See http://xarray.pydata.org for details on how to use data:')
+    print('='*80)
 
 def main():
 #    from pylab import *

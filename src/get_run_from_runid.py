@@ -1,3 +1,4 @@
+from __future__ import print_function
 def get_run_from_id(run_id, exp):
     from RegDB import experiment_info
     instrument = exp[0:3]
@@ -10,6 +11,6 @@ if __name__ == "__main__":
     from sys import argv
     exp = argv[1]
     run = int(argv[2])
-    print get_run_from_id(run, exp)
+    print(get_run_from_id(run, exp))
 
 

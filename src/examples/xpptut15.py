@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import sys, os
 import traceback
@@ -103,13 +104,13 @@ def to_xarray(ds=None, max_size=100000, **kwargs):
     try:
         make_cuts(x)
     except:
-        print 'Cannot make cuts'
+        print('Cannot make cuts')
         traceback.print_exc()
     
     try:
         cleanup(x)
     except:
-        print 'Cannot cleanup data'
+        print('Cannot cleanup data')
         traceback.print_exc()
 
     return x
@@ -134,13 +135,13 @@ def make_summary(run=None, exp=exp, ds=None, nevents=None,
         try:
             make_cuts(x)
         except:
-            print 'Cannot make cuts'
+            print('Cannot make cuts')
             traceback.print_exc()
         
         try:
             cleanup(x)
         except:
-            print 'Cannot cleanup data'
+            print('Cannot cleanup data')
             traceback.print_exc()
 
 
@@ -156,7 +157,7 @@ def to_hdf5(x, **kwargs):
     try:
         psxarray.to_h5netcdf(x, **kwargs)
     except:
-        print 'Cannot save to h5'
+        print('Cannot save to h5')
         traceback.print_exc()
 
 def cleanup(x):
@@ -458,7 +459,7 @@ def build_html(x, dorunnum=False, ioff=True):
 
         howto = []
         if OK:
-            print group, catagory
+            print(group, catagory)
             try:
                 b.add_scatter(df, catagory=catagory, attrs=attrs, howto=howto, group=group)
             except:
@@ -479,7 +480,7 @@ def summary_html(a, ioff=True, exp_path=exp_path):
         plt.ioff()
 
     path=os.path.join(exp_path, 'RunSummary')
-    print path
+    print(path)
     b = Build_html(a, path=os.path.join(exp_path, 'RunSummary'))
 
     b.add_xy_ploterr('MnScatter_norm', xaxis='atten_thick', logx=False, logy=False, catagory='FitResults')
@@ -524,9 +525,9 @@ def main():
     """
     import RunSummary
     time0 = time.time()
-    print time0
+    print(time0)
     args = RunSummary.initArgs()
-    print args
+    print(args)
     x = make_summary(**vars(args))
     return x
 

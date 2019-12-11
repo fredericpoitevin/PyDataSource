@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, os, re, time
 import operator
 import traceback
@@ -27,7 +28,7 @@ def live_source(monshmserver='psana', **kwargs):
             MPI_RANK = 0
             source_str = 'shmem={:}.0:stop=no'.format(monshmserver)
         except:
-            print 'Exception in finding shared memory server: ',shm_srvs
+            print('Exception in finding shared memory server: ',shm_srvs)
             source_str = None
     else:
         source_str = None
@@ -181,7 +182,7 @@ class DataSourceInfo(object):
                             data_source += ":live"
 
             else:
-                print 'No data source specified, so assume this is shared memory.'
+                print('No data source specified, so assume this is shared memory.')
                 data_source = live_source(**kwargs)
                 self.monshmserver = data_source
                 self.idx = False
@@ -198,7 +199,7 @@ class DataSourceInfo(object):
 
         if self.exp and self.monshmserver:
             calibDir = '/reg/d/psdm/{:}/{:}/calib'.format(self.instrument,self.exp)
-            print 'setting calibDir', self.exp, calibDir
+            print('setting calibDir', self.exp, calibDir)
             psana.setOption('psana.calib-dir', calibDir)
 
         self._set_user_dir()
@@ -258,9 +259,9 @@ class DataSourceInfo(object):
         return path
 
     def show_info(self):
-        print '< {:}: {:} >'.format(self.__class__.__name__, self.data_source)
+        print('< {:}: {:} >'.format(self.__class__.__name__, self.data_source))
         for attr in sorted(self._exp_defaults):
-            print '{:20} {:}'.format(attr, getattr(self, attr))
+            print('{:20} {:}'.format(attr, getattr(self, attr)))
 
     def __str__(self):
         return self.data_source
