@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import time
 
@@ -77,7 +78,7 @@ def to_xarray(ds, build_html=True, default_stats=True, **kwargs):
         try:
             b = build_run(x, **kwargs)
         except:
-            print 'Cannot build_run'
+            print('Cannot build_run')
     return x
 
 def open_hdf5(exp=exp, run=30):
@@ -142,36 +143,36 @@ def main():
     mpl.use('Agg')
     from PyDataSource import initArgs
     time0 = time.time()
-    print time0
+    print(time0)
     args = initArgs.initArgs()
-    print args
+    print(args)
     attr = args.attr
     exp = args.exp
     run = int(args.run.split('-')[0])
-    print exp, run
+    print(exp, run)
     if attr in ['build']:
         from PyDataSource import h5write
         x = h5write.open_h5netcdf(exp=exp,run=run)
-        print x
+        print(x)
         b = build_run(x)
  
     else:
         ds = DataSource(exp=exp,run=run)
         if attr == 'epics':
-            print ds.configData
+            print(ds.configData)
             es = ds.exp_summary
             if es:
                 es.to_html()
             else:
-                print 'Failed to load or generate exp_summary'
+                print('Failed to load or generate exp_summary')
 
         elif attr in ['batch']:
             from PyDataSource import write_hdf5
             x = to_xarray(ds) 
-            print x
+            print(x)
             b = build_run(x)
         else:
-            print ds.configData
+            print(ds.configData)
 
 if __name__ == "__main__":
     sys.exit(main())
