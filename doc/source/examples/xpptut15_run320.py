@@ -1,4 +1,4 @@
-%pylab
+#%pylab
 import PyDataSource
 ds  = PyDataSource.DataSource(exp='xpptut15',run=320)
 ds.configData
