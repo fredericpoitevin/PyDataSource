@@ -1,3 +1,4 @@
+from __future__ import division
 #%pylab
 import PyDataSource
 ds  = PyDataSource.DataSource(exp='xpptut15',run=320)

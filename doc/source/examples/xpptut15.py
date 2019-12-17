@@ -30,14 +30,14 @@ def DataSource(exp=exp, run=310,
         next(evt.cspad2x2_diff)
         if publish:
             evt.cspad2x2_diff.add.psplot('image')
-        evt.cspad2x2_diff.add.histogram('calib',bins=range(-15,275),publish=publish)
+        evt.cspad2x2_diff.add.histogram('calib',bins=list(range(-15,275)),publish=publish)
         evt.cspad2x2_diff.add.count('calib')
         evt.cspad2x2_diff.add.projection('image', 'x')
         evt.cspad2x2_diff.add.projection('image', 'y')
         next(evt.epix100a_diff)
         if publish:
             evt.epix100a_diff.add.psplot('image')
-        evt.epix100a_diff.add.histogram('calib',bins=range(-15,275),publish=publish)
+        evt.epix100a_diff.add.histogram('calib',bins=list(range(-15,275)),publish=publish)
         evt.epix100a_diff.add.count('calib')
         evt.epix100a_diff.add.projection('image', 'x')
         evt.epix100a_diff.add.projection('image', 'y')
