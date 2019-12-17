@@ -83,6 +83,8 @@ If you use all or part of it, please give an appropriate acknowledgment.
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+import six
 #------------------------------
 __version__ = "$Revision$"
 ##-----------------------------
@@ -644,7 +646,7 @@ class ScanData(object):
         """
         import xarray as xr
         nsteps = len(self.start_times)
-        xscan = xr.Dataset({'step': range(nsteps)})
+        xscan = xr.Dataset({'step': list(range(nsteps))})
         xscan.coords['time'] = (('step'), self.start_datetimes) 
         xscan.coords['time_ns'] = (('step'), xscan.time.values.tolist())
         xscan['step_tstart'] = (('step'), self.start_datetimes) 
@@ -993,11 +995,14 @@ class DataSource(object):
                                     newval =  item.get('val')
                                     if not val or newval != val:
                                         val = newval
-                                        vt = np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns')
+                                        if six.PY3:
+                                            vt = np.datetime64(int(item['secs']*1e9+item['nanos']), 'ns')
+                                        else:
+                                            vt = np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns')
                                         vals[vt] = val
                                
-                                data_fields[alias][attr] = xr.DataArray(vals.values(), 
-                                                                coords=[vals.keys()], dims=['time'], 
+                                data_fields[alias][attr] = xr.DataArray(list(vals.values()), 
+                                                                coords=[list(vals.keys())], dims=['time'], 
                                                                 name=alias+'_'+attr, attrs=fattrs) 
                                 attrs[attr] = val
          
@@ -1020,7 +1025,10 @@ class DataSource(object):
                             print((alias, 'string'))
                         vals = np.array(vals, dtype=str)
                     else:
-                        times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
+                        if six.PY3:
+                            times = [np.datetime64(int(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
+                        else:
+                            times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
                         dfs = pd.Series(vals, times).sort_index()
                         dfs = dfs[~dfs.index.duplicated()]
                         dfs = dfs[~(dfs.diff()==0)]
@@ -1048,7 +1056,7 @@ class DataSource(object):
                 if not quiet:
                     print(('Error loading', alias))
 
-        xdata = xr.merge(data_arrays.values())
+        xdata = xr.merge(list(data_arrays.values()))
         if trans_pvs:
             da = xdata.reset_coords()[trans_pvs].to_array() 
             xdata['trans'] = (('time'), da.prod(dim='variable'))
@@ -1099,7 +1107,7 @@ class DataSource(object):
     def __dir__(self):
         all_attrs = set(self._attrs +
                         dir(self._ds.env().epicsStore()) +
-                        self.__dict__.keys() + dir(EpicsData))
+                        list(self.__dict__.keys()) + dir(EpicsData))
         return list(sorted(all_attrs))
 
 
@@ -1320,7 +1328,7 @@ class DataSource(object):
         if not stats already created
         """
         if not attrs:
-            attrs = self._detectors.keys()
+            attrs = list(self._detectors.keys())
         
         attrs = list(set(attrs))
 
@@ -1693,7 +1701,7 @@ class DataSource(object):
             return
 
         if 'EvrData' in self._evt_modules:
-            evr_typ, evr_src, evr_key = self._evt_modules['EvrData'].values()[0][0]
+            evr_typ, evr_src, evr_key = list(self._evt_modules['EvrData'].values())[0][0]
             srcstr = str(evr_src) 
             srcname = srcstr.split('(')[1].split(')')[0]
             devName = srcname.split(':')[1].split('.')[0]
@@ -1712,7 +1720,7 @@ class DataSource(object):
                 except:
                     ievr += 1
                     if ievr > 10:
-                        print(self.configData.keys())
+                        print(list(self.configData.keys()))
                         traceback.print_exc('Erro. -- no evr present')
         
         self.reload()
@@ -2108,7 +2116,7 @@ class DataSource(object):
         all_attrs =  set(self._ds_attrs + 
                          self._ds_funcs + 
                          self._env_attrs +
-                         self.__dict__.keys() + dir(DataSource))
+                         list(self.__dict__.keys()) + dir(DataSource))
         
         return list(sorted(all_attrs))
 
@@ -2190,7 +2198,7 @@ class Run(object):
     def __dir__(self):
         all_attrs =  set(self._run_attrs +
                          self._run_funcs + 
-                         self.__dict__.keys() + dir(Run))
+                         list(self.__dict__.keys()) + dir(Run))
         
         return list(sorted(all_attrs))
 
@@ -2571,7 +2579,7 @@ class PsanaTypeList(object):
                 self._attr_info[attr]['value'] = values
                 self._attr_info[attr]['attr'] = attr
 
-        self._attrs = self._values.keys()
+        self._attrs = list(self._values.keys())
 
     @property
     def _all_values(self):
@@ -2610,7 +2618,7 @@ class PsanaTypeList(object):
 
     def __dir__(self):
         all_attrs = set(self._attrs +
-                        self.__dict__.keys() + dir(PsanaTypeList))
+                        list(self.__dict__.keys()) + dir(PsanaTypeList))
         return list(sorted(all_attrs))
 
 
@@ -2631,7 +2639,7 @@ class PsanaTypeData(object):
         if type_name in psana_doc_info[module]:
             self._info = psana_doc_info[module][type_name].copy()
             if psana_attrs.get(module,{}).get(type_name):
-                self._attrs = [key for key in psana_attrs[module][type_name] if key in self._info.keys()] 
+                self._attrs = [key for key in psana_attrs[module][type_name] if key in list(self._info.keys())] 
             else:
                 self._attrs = [key for key in self._info.keys() if not key[0].isupper()]
             
@@ -2706,7 +2714,7 @@ class PsanaTypeData(object):
 
     def __dir__(self):
         all_attrs = set(self._attrs +
-                        self.__dict__.keys() + dir(PsanaTypeData))
+                        list(self.__dict__.keys()) + dir(PsanaTypeData))
         return list(sorted(all_attrs))
 
 
@@ -2817,9 +2825,9 @@ class PsanaSrcData(object):
 
                    #
     def __dir__(self):
-        all_attrs = set(self._type_attrs.keys() +
-                        self._types.keys() + 
-                        self.__dict__.keys() + dir(PsanaSrcData))
+        all_attrs = set(list(self._type_attrs.keys()) +
+                        list(self._types.keys()) + 
+                        list(self.__dict__.keys()) + dir(PsanaSrcData))
         return list(sorted(all_attrs))
 
 
@@ -2839,7 +2847,7 @@ class ConfigData(object):
             'BldInfo(NH2-SB1-IPM-02)':  'Nh2Sb1_Ipm2',
             'BldInfo(MFX-BEAMMON-01)':  'MfxBeammon',
             }
-    _seq_evtCodes = range(67,99)+range(167,199)+range(201,217)
+    _seq_evtCodes = list(range(67,99))+list(range(167,199))+list(range(201,217))
     _lcls_evtCodes = {
             140: 'Beam & 120Hz',
             141: 'Beam & 60Hz',
@@ -2924,7 +2932,7 @@ class ConfigData(object):
             return
         else:
             #Build _partition _srcAlias _readoutGroup dictionaries based on Partition configStore data. 
-            type_name = self._modules.get('Partition').keys()[0]
+            type_name = list(self._modules.get('Partition').keys())[0]
             if len(self._modules['Partition'][type_name]) == 1:
                 typ, src, key = self._modules['Partition'][type_name][0]
                 srcstr = str(src)
@@ -3110,14 +3118,14 @@ class ConfigData(object):
 
         # Get control data
         if self._modules.get('ControlData'):
-            type_name, keys = self._modules['ControlData'].items()[0]
+            type_name, keys = list(self._modules['ControlData'].items())[0]
             typ, src, key = keys[0]
             config = self._config[str(src)]
             self._controlData = config._values
             self.ControlData = config
 
         if self._modules.get('SmlData'):
-            type_name, keys = self._modules['SmlData'].items()[0]
+            type_name, keys = list(self._modules['SmlData'].items())[0]
             typ, src, key = keys[0]
             config = self._config[str(src)]
             self._smlData = config._values
@@ -3275,8 +3283,8 @@ class ConfigData(object):
         
     def __dir__(self):
         all_attrs = set(self._configStore_attrs +
-                        self._config_srcs.keys() + 
-                        self.__dict__.keys() + dir(ConfigData))
+                        list(self._config_srcs.keys()) + 
+                        list(self.__dict__.keys()) + dir(ConfigData))
         return list(sorted(all_attrs))
 
 
@@ -3428,7 +3436,7 @@ class EvtDetectors(object):
     def __dir__(self):
         all_attrs =  set(self._attrs +
                          self._init_attrs +
-                         self.__dict__.keys() + dir(EvtDetectors))
+                         list(self.__dict__.keys()) + dir(EvtDetectors))
         
         return list(sorted(all_attrs))
 
@@ -3447,7 +3455,7 @@ class L3Ttrue(object):
                                       'unit': '',
                                       'value': True}}
 
-        self._attrs = self._attr_info.keys()
+        self._attrs = list(self._attr_info.keys())
 
     @property
     def _values(self):
@@ -3484,7 +3492,7 @@ class L3Ttrue(object):
 
     def __dir__(self):
         all_attrs = set(self._attrs +
-                        self.__dict__.keys() + dir(L3Ttrue))
+                        list(self.__dict__.keys()) + dir(L3Ttrue))
         return list(sorted(all_attrs))
 
 
@@ -3494,7 +3502,7 @@ class L3Tdata(PsanaTypeData):
     """
     def __init__(self, ds):
 
-        self._typ, self._src, key = ds._evt_modules['L3T'].values()[0][0]
+        self._typ, self._src, key = list(ds._evt_modules['L3T'].values())[0][0]
         typ_func = ds._current_evt.get(self._typ,self._src)
         PsanaTypeData.__init__(self, typ_func)
 
@@ -3518,7 +3526,7 @@ class ConfigSources(object):
     def __init__(self, configData):
         self._sources = configData._sources
         self._aliases = {item['alias']: src for src, item in self._sources.items()}
-        self._cfg_srcs = configData._config_srcs.values()
+        self._cfg_srcs = list(configData._config_srcs.values())
         self._repr = str(configData._ds) 
         self._configData = configData
         self._eventcodes = configData._eventcodes
@@ -3650,8 +3658,8 @@ class ConfigSources(object):
             return SourceData(self._sources[srcstr])
 
     def __dir__(self):
-        all_attrs =  set(self._aliases.keys() +
-                         self.__dict__.keys() + dir(ConfigSources))
+        all_attrs =  set(list(self._aliases.keys()) +
+                         list(self.__dict__.keys()) + dir(ConfigSources))
         
         return list(sorted(all_attrs))
 
@@ -3718,8 +3726,8 @@ class SourceData(object):
             return self._source[attr]
 
     def __dir__(self):
-        all_attrs =  set(self._source.keys()+
-                         self.__dict__.keys() + dir(SourceData))
+        all_attrs =  set(list(self._source.keys())+
+                         list(self.__dict__.keys()) + dir(SourceData))
         
         return list(sorted(all_attrs))
 
@@ -3807,7 +3815,7 @@ class EvrData(object):
     
     def __dir__(self):
         all_attrs =  set(self._detail_attrs +
-                         self.__dict__.keys() + dir(EvrData) + dir(EvrDataDetails))
+                         list(self.__dict__.keys()) + dir(EvrData) + dir(EvrDataDetails))
         
         return list(sorted(all_attrs))
 
@@ -3823,7 +3831,7 @@ class EvrDataDetails(PsanaTypeData):
 
     def __init__(self, ds):
 
-        self._typ, self._src, key = ds._evt_modules['EvrData'].values()[0][0]
+        self._typ, self._src, key = list(ds._evt_modules['EvrData'].values())[0][0]
         typ_func = ds._current_evt.get(self._typ,self._src)
         PsanaTypeData.__init__(self, typ_func)
         self.eventCodes = self.fifoEvents.eventCode
@@ -3957,7 +3965,7 @@ class EvrDataDetails(PsanaTypeData):
         return eventCodeStr
 
     def __dir__(self):
-        all_attrs =  set(self.__dict__.keys() + dir(EvrDataDetails))
+        all_attrs =  set(list(self.__dict__.keys()) + dir(EvrDataDetails))
         
         return list(sorted(all_attrs))
 
@@ -4063,7 +4071,7 @@ class EventId(object):
 
     def __dir__(self):
         all_attrs =  set(self._attrs+
-                         self.__dict__.keys() + dir(EventId))
+                         list(self.__dict__.keys()) + dir(EventId))
         
         return list(sorted(all_attrs))
 
@@ -4909,7 +4917,7 @@ class Detector(object):
         #coords = stat_info.get('coords').copy()
         coords = {}
         dims = stat_info.get('dims')
-        eventCodes = stat_info['funcs'].keys()
+        eventCodes = list(stat_info['funcs'].keys())
         attrs = stat_info['attrs']
         steps = []
         for ec, item in stat_info['funcs'].items():
@@ -5046,17 +5054,17 @@ class Detector(object):
 
     def __dir__(self):
         all_attrs =  set(self._attrs+
-                         self._det_config['parameter'].keys() +
-                         self._det_config['property'].keys() +
-                         self._det_config['roi'].keys() + 
-                         self._det_config['count'].keys() + 
-                         self._det_config['histogram'].keys() + 
-                         self._det_config['peak'].keys() + 
-                         self._det_config['projection'].keys() + 
-                         self._det_config['stats'].keys() + 
+                         list(self._det_config['parameter'].keys()) +
+                         list(self._det_config['property'].keys()) +
+                         list(self._det_config['roi'].keys()) + 
+                         list(self._det_config['count'].keys()) + 
+                         list(self._det_config['histogram'].keys()) + 
+                         list(self._det_config['peak'].keys()) + 
+                         list(self._det_config['projection'].keys()) + 
+                         list(self._det_config['stats'].keys()) + 
                          self._det_config['module'].get('dict', []) +
                          self._ds.events.current._event_attrs +
-                         self.__dict__.keys() + dir(Detector))
+                         list(self.__dict__.keys()) + dir(Detector))
         
         return list(sorted(all_attrs))
 
@@ -5680,7 +5688,7 @@ class AddOn(object):
             if not code0:
                 code0 = 40
                 if code0 not in self._ds.configData._eventcodes:
-                    code0 = self._ds.configData._eventcodes.keys()
+                    code0 = list(self._ds.configData._eventcodes.keys())
 
             eventCodes = code0
 
@@ -6400,8 +6408,8 @@ class AddOn(object):
         return getattr_complete(self._det,attr)
 
     def __dir__(self):
-        all_attrs =  set(self._plugins.keys() +
-                         self.__dict__.keys() + dir(AddOn))
+        all_attrs =  set(list(self._plugins.keys()) +
+                         list(self.__dict__.keys()) + dir(AddOn))
         
         return list(sorted(all_attrs))
 
@@ -6484,7 +6492,7 @@ class IpimbData(object):
 
     def __dir__(self):
         all_attrs =  set(self._attrs +
-                         self.__dict__.keys() + dir(IpimbData))
+                         list(self.__dict__.keys()) + dir(IpimbData))
         
         return list(sorted(all_attrs))
 
@@ -6556,7 +6564,7 @@ class GenericWaveformData(object):
 #
     def __dir__(self):
         all_attrs =  set(self._attrs +
-                         self.__dict__.keys() + dir(GenericWaveformData))
+                         list(self.__dict__.keys()) + dir(GenericWaveformData))
         
         return list(sorted(all_attrs))
 
@@ -6638,7 +6646,7 @@ class WaveformData(object):
 
     def __dir__(self):
         all_attrs =  set(self._attrs +
-                         self.__dict__.keys() + dir(WaveformData))
+                         list(self.__dict__.keys()) + dir(WaveformData))
         
         return list(sorted(all_attrs))
 
@@ -6730,7 +6738,7 @@ class WaveformCalibData(object):
 
     def __dir__(self):
         all_attrs =  set(self._attrs +
-                         self.__dict__.keys() + dir(WaveformCalibData))
+                         list(self.__dict__.keys()) + dir(WaveformCalibData))
         
         return list(sorted(all_attrs))
 
@@ -6917,7 +6925,7 @@ class ImageData(object):
 
     def __dir__(self):
         all_attrs =  set(self._attrs +
-                         self.__dict__.keys() + dir(ImageData))
+                         list(self.__dict__.keys()) + dir(ImageData))
         
         return list(sorted(all_attrs))
 
@@ -7173,7 +7181,7 @@ class ImageCalibData(object):
         
     def __dir__(self):
         all_attrs =  set(self._attrs +
-                         self.__dict__.keys() + dir(ImageCalibData))
+                         list(self.__dict__.keys()) + dir(ImageCalibData))
         
         return list(sorted(all_attrs))
 
@@ -7211,8 +7219,8 @@ class EpicsConfig(object):
             return self._pvs.get(attr)
 
     def __dir__(self):
-        all_attrs =  set(self._pvs.keys() +
-                         self.__dict__.keys() + dir(EpicsConfig))
+        all_attrs =  set(list(self._pvs.keys()) +
+                         list(self.__dict__.keys()) + dir(EpicsConfig))
         
         return list(sorted(all_attrs))
 
@@ -7290,7 +7298,7 @@ class EpicsData(object):
     def __dir__(self):
         all_attrs = set(self._attrs +
                         dir(self._ds.env().epicsStore()) +
-                        self.__dict__.keys() + dir(EpicsData))
+                        list(self.__dict__.keys()) + dir(EpicsData))
         return list(sorted(all_attrs))
 
 
@@ -7356,7 +7364,7 @@ class PvData(object):
             attr_dict = {key: pdict for key,pdict in self._attr_dict.items()
                          if pdict['components'][self._level] == attr}
             if len(attr_dict) == 1:
-                key = attr_dict.keys()[0]
+                key = list(attr_dict.keys())[0]
                 if len(self._attr_dict[key]['components']) == (self._level+1):
                     pv = self._attr_dict[key]['pv']
                     return self._get_pv(pv)
@@ -7368,7 +7376,7 @@ class PvData(object):
 
     def __dir__(self):
         all_attrs = set(self._attrs +
-                        self.__dict__.keys() + dir(PvData))
+                        list(self.__dict__.keys()) + dir(PvData))
         return list(sorted(all_attrs))
 
 
@@ -7437,7 +7445,7 @@ class EpicsStorePV(object):
 
     def __dir__(self):
         all_attrs = set(self._attrs +
-                        self.__dict__.keys() + dir(EpicsStorePV))
+                        list(self.__dict__.keys()) + dir(EpicsStorePV))
         return list(sorted(all_attrs))
 
 

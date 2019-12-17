@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 # standard python modules
 import os
 import operator
@@ -298,7 +299,7 @@ def merge_datasets(file_names, engine='h5netcdf',
             print('processing', file_name)
             xo = process_one_file(file_name, engine=engine)
             #skip files with no data
-            if xo.data_vars.keys():
+            if list(xo.data_vars.keys()):
                 det = xo.attrs.get('alias')
                 if not det:
                     det = file_name.split('/')[-1].split('_')[-1].split('.')[0]
@@ -413,13 +414,13 @@ def merge_stats(run=None, path=None, exp=None, dim='steps',
                             smean = item.sel(stat='mean').values
                             xmean = x[attr].sel(stat='mean').values
                             sxvar = 1./(1./xvar+1./svar)
-                            item[istats['mean']] = (xmean/xvar+smean/svar)*sxvar
+                            item[istats['mean']] = (old_div(xmean,xvar)+old_div(smean,svar))*sxvar
                             item[istats['std']] = np.sqrt(sxvar)
 
     if not xdata:
         x = None
     else:
-        x = xr.concat(xdata.values(), dim)
+        x = xr.concat(list(xdata.values()), dim)
     
     return x
 
@@ -946,7 +947,7 @@ def write_hdf5(self, nevents=None, max_size=10001,
         xbase[attr].attrs['codes'] = ec
         coordinates += ' {:}'.format(attr)
 
-    xbase.attrs['event_flags'] = code_flags.keys()
+    xbase.attrs['event_flags'] = list(code_flags.keys())
    
     # eventCode Timestamp information
     xbase.dimensions['eventCodes'] = len(eventCodes)
@@ -1039,7 +1040,7 @@ def write_hdf5(self, nevents=None, max_size=10001,
             print('Failed to add epics PV',pv, attr)
 
     base_coordinates = coordinates
-    scan_variables = epics_pvs.keys() 
+    scan_variables = list(epics_pvs.keys()) 
     xbase.attrs['scan_variables'] = scan_variables
   
     for srcstr, src_info in self.configData._sources.items():
@@ -1234,7 +1235,7 @@ def write_hdf5(self, nevents=None, max_size=10001,
             traceback.print_exc()
 
     print('********')
-    print('detector objects: ', axdat.keys())
+    print('detector objects: ', list(axdat.keys()))
     print('********')
 # Need to fix handling of detector image axis
 
@@ -1415,8 +1416,8 @@ def write_hdf5(self, nevents=None, max_size=10001,
                         traceback.print_exc()
                         print('Bad time')
                         print(dtime, det, attr, iwrite)
-                        print('axdat keys:', axdat.keys())
-                        print('axdat[det] keys:', axdat.get(det,{}).keys())
+                        print('axdat keys:', list(axdat.keys()))
+                        print('axdat[det] keys:', list(axdat.get(det,{}).keys()))
                         print(axdat[det][attr])
                         continue
 
@@ -1748,7 +1749,7 @@ def make_image(self, pixel=.11, ix0=None, iy0=None,
         
     except:
         newdim={self.dims[1]+'s': [self.dims[0],self.dims[1]]}
-        return self.stack(**newdim).drop(newdim.keys())
+        return self.stack(**newdim).drop(list(newdim.keys()))
 
     #return xr.DataArray(a, coords=[(base+'_yimage', y.mean(axis=1)), (base+'_ximage', x.mean(axis=0))])
 

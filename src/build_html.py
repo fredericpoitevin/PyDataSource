@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 
 import os
 import logging
@@ -872,7 +873,7 @@ class Build_html(object):
         x = self._xdat
         catagory = 'PhotonEnergy'
         if catagory in x:
-            attrs = get_correlations(x, catagory, confidence=confidence).keys()
+            attrs = list(get_correlations(x, catagory, confidence=confidence).keys())
             self.add_detector('EBeam', catagory=catagory, cut=cut,
                     make_scatter=attrs, make_timeplot=False, make_histplot=False)
             attrs.append('PhotonEnergy')
@@ -888,7 +889,7 @@ class Build_html(object):
         alias = 'Gasdet_post_atten'
         catagory = 'PulseEnergy'
         if alias in x:
-            attrs = get_correlations(x, 'Gasdet_post_atten', confidence=confidence).keys()
+            attrs = list(get_correlations(x, 'Gasdet_post_atten', confidence=confidence).keys())
             self.add_detector('FEEGasDetEnergy', catagory=catagory, cut=cut, 
                     make_scatter=attrs, make_timeplot=False, make_histplot=False)
             attrs.append('Gasdet_post_atten')
@@ -991,7 +992,7 @@ class Build_html(object):
             else:
                 self.add_detector(alias, groupby=groupby, **kwargs)
 
-            attrs = [attr for attr,item in self._xdat.data_vars.items() \
+            attrs = [attr for attr,item in list(self._xdat.data_vars.items()) \
                      if item.attrs.get('alias') == alias and 'time' in item.dims and len(item.dims) > 1]
             if attrs:
                 try:
@@ -1522,7 +1523,7 @@ class Build_html(object):
         else:
             if isinstance(attrs, dict):
                 attr_names = attrs
-                attrs = attr_names.values()
+                attrs = list(attr_names.values())
             
             attrs0 = [attr for attr in attrs]
        
@@ -1746,7 +1747,7 @@ class Build_html(object):
                     plt.close()
                     print('make_histplot failed')
                     print(howto)
-                    print(dfcut.keys())
+                    print(list(dfcut.keys()))
 
             if make_correlation:
                 try:
@@ -1763,7 +1764,7 @@ class Build_html(object):
             # make scatter matrix using pandas -- cut outliers
             if make_scatter:
                 if not robust_attrs:
-                    robust_attrs = df.keys()
+                    robust_attrs = list(df.keys())
                     
                 robust_attrs = [a for a in [attr.replace(alias+'_','') for attr in robust_attrs] if a in df.keys()]
                 dfr = df[robust_attrs]
@@ -1785,12 +1786,12 @@ class Build_html(object):
                     scat_dict = {'default': scat_attrs}
 
                 else:
-                    scat_attrs = default_scatter_attrs.get(alias, attr_names.values())
+                    scat_attrs = default_scatter_attrs.get(alias, list(attr_names.values()))
                     scat_dict = {'default': scat_attrs}
                
                 for scat_group, scat_attrs in scat_dict.items():
                     for attr in x.attrs.get('correlation_variables', []):
-                        if attr in dfcut.keys() and attr not in scat_attrs:
+                        if attr in list(dfcut.keys()) and attr not in scat_attrs:
                             scat_attrs.append(attr)
 
                     if len(scat_attrs) > max_scatter:
@@ -1960,7 +1961,7 @@ class Build_html(object):
         """
         import seaborn as sns
         if not attrs:
-            attrs = df.keys()
+            attrs = list(df.keys())
        
         sns.set()
         plt.rcParams['axes.labelsize'] = 10 
@@ -2292,7 +2293,7 @@ class Build_html(object):
 
         plt.close()
         plt.cla()
-        variables = [v for v in variables if v in self._xdat.variables.keys()]
+        variables = [v for v in variables if v in list(self._xdat.variables.keys())]
 
         if groupby is None:
             groupby = [group for group in self._xdat.attrs.get('scan_variables', []) \

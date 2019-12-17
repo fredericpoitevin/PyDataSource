@@ -2,6 +2,8 @@
 # with absolutely no warranty and you can do
 # absolutely whatever you want with it.
 
+from past.builtins import basestring
+import six
 __date__ = '1 October 2012'
 __version__ = '1.9'
 __doc__= """
@@ -33,7 +35,7 @@ except:
 # to by a leading underscore otherwise we end up with a syntax error
 import keyword
 
-class element:
+class element(object):
     """This class handles the addition of a new element."""
 
     def __init__( self, tag, case='lower', parent=None ):
@@ -122,7 +124,7 @@ class element:
         elif self.mode == 'strict_html' and self.tag in self.parent.deptags:
             raise DeprecationError( self.tag )
 
-class page:
+class page(object):
     """This is our main class representing a document. Elements are added
     as attributes of an instance of this class."""
 
@@ -368,7 +370,7 @@ class page:
                 raise TypeError( "Script should be given a dictionary of src:type pairs or a list of javascript src's." )
 
 
-class _oneliner:
+class _oneliner(object):
     """An instance of oneliner returns a string corresponding to one element.
     This class can be used to write 'oneliners' that return a string
     immediately so there is no need to instantiate the page class."""
@@ -427,7 +429,7 @@ def _totuple( x ):
 
     if isinstance( x, basestring ):
         out = x,
-    elif isinstance( x, ( int, long, float ) ):
+    elif isinstance( x,  tuple(list(six.integer_types) + [float]) ):
         out = str( x ),
     elif x is None:
         out = None,
@@ -473,7 +475,7 @@ def unescape( text ):
 
     return text
 
-class dummy:
+class dummy(object):
     """A dummy class for attaching attributes."""
     pass
 
@@ -482,7 +484,7 @@ doctype.frameset = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
 doctype.strict = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">"""
 doctype.loose = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">"""
 
-class russell:
+class russell(object):
     """A dummy class that contains anything."""
 
     def __contains__( self, item ):

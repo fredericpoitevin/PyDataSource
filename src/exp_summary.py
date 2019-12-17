@@ -1,6 +1,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+import six
 import re
 import operator
 import sys
@@ -20,7 +24,7 @@ instrument_transmission_pvs = {
 def write_exp_summary(self, file_name=None, path=None, **kwargs):
     """Write ExperimentSummary as pickle file.
     """
-    import cPickle as pickle
+    import pickle as pickle
     if not file_name:
         file_name = 'experiment_summary.pkl'
     
@@ -154,7 +158,7 @@ def read_exp_summary(exp=None, file_name=None, path=None, **kwargs):
     Read exp_summary pickle file.  Return none if does not exist.
     """
     import glob
-    import cPickle as pickle
+    import pickle as pickle
     if not file_name:
         file_name = 'experiment_summary.pkl'
     
@@ -415,7 +419,7 @@ class ExperimentSummary(object):
             if not isinstance(attrs, list):
                 attrs = [attrs]
         else:
-            attrs = self.xset.data_vars.keys()
+            attrs = list(self.xset.data_vars.keys())
 
         for attr in attrs:
             xvar = self.xset.reset_coords().set_coords(['begin_time','prep_time'])[attr].dropna(dim='run')
@@ -458,7 +462,7 @@ class ExperimentSummary(object):
         df = self.get_scans(**kwargs).T
         if run in df:
             df = df[run]
-            attrs = df.where(df > 0).dropna().keys() 
+            attrs = list(df.where(df > 0).dropna().keys())
             a = self.xruns.sel(run=run)
             t = self.xepics.time
             xepics = self.xepics[attrs].where(t>=a.begin_time).where(t<=a.end_time).dropna(dim='time',how='all')
@@ -485,7 +489,7 @@ class ExperimentSummary(object):
         df = self.get_scans(**kwargs).T
         if run in df:
             df = df[run]
-            attrs = df.where(df > 0).dropna().keys() 
+            attrs = list(df.where(df > 0).dropna().keys())
             a = self.xruns.sel(run=run)
             t = self.xepics.time
             xepics = self.xepics[attrs].where(t>=a.begin_time).where(t<=a.end_time).dropna(dim='time',how='all')
@@ -511,7 +515,7 @@ class ExperimentSummary(object):
         if x is None:
             print('Run {:} scan for attrs={:} device={:} not valid'.format(run, attrs, device))
         else:
-            attrs = x.data_vars.keys()
+            attrs = list(x.data_vars.keys())
             if len(attrs) == 1:
                 ylabel = attrs[0]
             else:
@@ -558,7 +562,7 @@ class ExperimentSummary(object):
 
     def _pvs_with_set(self):
         aout = []
-        attrs = self.xset.data_vars.keys()
+        attrs = list(self.xset.data_vars.keys())
         for a in attrs:
             if a.endswith('_set'):
                 aout.append(a.split('_set')[0])
@@ -580,8 +584,8 @@ class ExperimentSummary(object):
         
         xepics = self.get_epics(attrs=attrs, run_min=run_min, run_max=run_max)
         attrs = []
-        df = xepics.to_dataframe()[xepics.data_vars.keys()]
-        for attr, item in df.iteritems():
+        df = xepics.to_dataframe()[list(xepics.data_vars.keys())]
+        for attr, item in df.items():
             if len(set(item.astype(np.float32).dropna().drop_duplicates().values)) >= min_count:
                 attrs.append(attr)
         
@@ -731,8 +735,8 @@ class ExperimentSummary(object):
             except:
                 pass
 
-        xruns.attrs['dets'] = aliases.keys()
-        xruns.attrs['detectors'] = aliases.keys()
+        xruns.attrs['dets'] = list(aliases.keys())
+        xruns.attrs['detectors'] = list(aliases.keys())
 
         return xruns
 
@@ -742,7 +746,7 @@ class ExperimentSummary(object):
         Return list of runs with xtc files.
         """
         runs = []
-        for run, file_names in self.dfruns.T['xtc_files'].iteritems():
+        for run, file_names in self.dfruns.T['xtc_files'].items():
             if file_names != []:
                 runs.append(run)
 
@@ -919,7 +923,7 @@ class ExperimentSummary(object):
         """Currently not archived
         """
         data_codes = {}
-        seq_evtCodes = range(67,99)+range(167,199)+range(201,217)
+        seq_evtCodes = list(range(67,99))+list(range(167,199))+list(range(201,217))
         for num in seq_evtCodes:
             pvs = {
                     'inst_num': 'ECS:SYS0:0:EC_{:}_OWNER_ID'.format(num),
@@ -1081,11 +1085,14 @@ class ExperimentSummary(object):
                                         newval =  item.get('val')
                                         if not val or newval != val:
                                             val = newval
-                                            vt = np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns')
+                                            if six.PY3:
+                                                vt = np.datetime64(int(item['secs']*1e9+item['nanos']), 'ns')
+                                            else:
+                                                vt = np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns')
                                             vals[vt] = val
                                    
-                                    data_fields[alias][attr] = xr.DataArray(vals.values(), 
-                                                                    coords=[vals.keys()], dims=['time'], 
+                                    data_fields[alias][attr] = xr.DataArray(list(vals.values()), 
+                                                                    coords=[list(vals.keys())], dims=['time'], 
                                                                     name=alias+'_'+attr, attrs=fattrs) 
                                     attrs[attr] = val
              
@@ -1105,7 +1112,10 @@ class ExperimentSummary(object):
                                     print((alias, 'string'))
                                 vals = np.array(vals, dtype=str)
                             else:
-                                times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
+                                if six.PY3:
+                                    times = [np.datetime64(int(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
+                                else:
+                                    times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
                                 # Simple way to remove duplicates
                                 # Duplicates will break xarray merge
         #                        times_o = [a for a in times]
@@ -1179,9 +1189,9 @@ class ExperimentSummary(object):
         self._evr_pvs = evr_pvs
 
         time_last = time.time()
-        xepics = xr.merge(data_arrays.values())
+        xepics = xr.merge(list(data_arrays.values()))
         xepics = xepics[sorted(xepics.data_vars)]
-        xmachine = xr.merge(data_machine.values())
+        xmachine = xr.merge(list(data_machine.values()))
         xmachine = xmachine[sorted(xmachine.data_vars)]
 
         try:
@@ -1314,7 +1324,7 @@ class ExperimentSummary(object):
             print('... processing {:} epics data'.format(self.exp))
         coords = ['begin_time','end_time','duration','run_id','prep_time']
         if kwargs.get('pvs'):
-            attrs = kwargs.get('pvs').values()
+            attrs = list(kwargs.get('pvs').values())
         else:
             attrs = [a for a,b in self.xepics.data_vars.items() \
                      if b.attrs.get('pv','').endswith('STATE') or a.endswith('_set') 
@@ -1366,7 +1376,7 @@ class ExperimentSummary(object):
                      val = xscan[attr].sel(run=rn).sel(stat='mean')
                 data[rn] = val
 
-            xset[attr] = xr.DataArray(data.values(), coords=[data.keys()], 
+            xset[attr] = xr.DataArray(list(data.values()), coords=[list(data.keys())], 
                                 dims=['run'], attrs=xpvs[attr].attrs)
 
         self.xscan = xscan
@@ -1374,7 +1384,7 @@ class ExperimentSummary(object):
         self.xpvs = xpvs
 
         attrs = [a for a in self.xscan.data_vars.keys()]
-        if xscan.data_vars.keys():
+        if list(xscan.data_vars.keys()):
             try:
                 self.dfscan = self.xscan.sel(stat='count').reset_coords()[attrs]
                 self.dfscan = self.dfscan.dropna(dim='run', how='all').to_dataframe().astype(int)
@@ -1405,7 +1415,7 @@ class ExperimentSummary(object):
         nrns = 0 
         rn0 = 0
         rn_last = 0
-        for run,val in dfp.iteritems():
+        for run,val in dfp.items():
             if abs(dfpp[run]) > 0.1 or run-rn_last > 2 or run == df.index.values[-1]:
                 if run == df.index.values[-1]:
                     nrns += 1
@@ -1457,7 +1467,7 @@ class ExperimentSummary(object):
         # determine attributes that make miniumum step cut
         attr_cut = (dfscan > min_steps).sum() > 0
         try:
-            scan_attrs = dfscan.keys()[attr_cut]
+            scan_attrs = list(dfscan.keys())[attr_cut]
             # Make cut on runs with minimum steps
             cut = (dfscan[scan_attrs].T > min_steps).sum() >= min_motors
             # Return reduced Dataframe with number of steps
@@ -1536,7 +1546,7 @@ class ExperimentSummary(object):
                         runs_dict[run]['h5_files'].append(f)
                 except:
                     pass
-            runs_list = runs_dict.values()
+            runs_list = list(runs_dict.values())
 
         else:
             runs_list = []
@@ -1617,7 +1627,7 @@ class ExperimentSummary(object):
                     dtime = time.time() - begin_time
                     flag = '*'
 
-                dmin = int(dtime/60)
+                dmin = dtime//60
                 dsec = int(dtime % 60)
                 if dmin > 0:
                     dtstr = '{:4}m {:02}s'.format(dmin,dsec)

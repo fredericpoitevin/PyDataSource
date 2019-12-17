@@ -57,8 +57,8 @@ class elog(object):
             return self._elogs[attr]
 
     def __dir__(self):
-        all_attrs = set(self._elogs.keys() +
-                        self.__dict__.keys() + dir(elog))
+        all_attrs = set(list(self._elogs.keys()) +
+                        list(self.__dict__.keys()) + dir(elog))
         return list(sorted(all_attrs))
 
 def post(_message, name='current', **kwargs):

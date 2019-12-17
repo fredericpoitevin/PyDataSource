@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 from . import PyDataSource
 import os
 
@@ -16,7 +17,7 @@ class Impbox(PyDataSource.Detector):
 
         self.add.parameter(nchannels=4)
         self.add.parameter(signal_width=10)
-        hw = self.signal_width/2
+        hw = self.signal_width//2
         filter=np.array([-np.ones(hw),np.ones(hw)]).flatten()/(hw*2)
         self.add.parameter(filter=filter)
 
@@ -71,7 +72,7 @@ class Channel(object):
     
     @property
     def filtered(self):
-        hw = len(self.filter)/2
+        hw = len(self.filter)//2
         f = -signal.convolve(self.waveform,self.filter)
         f[0:len(self.filter)+1] = 0
         f[-len(self.filter)-1:] = 0
@@ -83,7 +84,7 @@ class Channel(object):
            Imp signals are step functions.
            Additional noise needs to be subtracted.
         """
-        hw = len(self.filter)/2
+        hw = len(self.filter)//2
         return self.filtered.argmax()+hw
 
     @property
@@ -91,7 +92,7 @@ class Channel(object):
         """peak of signal in waveform.
            Currently crude calculation with no advanced background subtraction.
         """
-        hw = len(self.filter)/2
+        hw = len(self.filter)//2
         wf = self.waveform
         t0 = self.time
         amp = wf[t0+hw:t0+hw*2].mean() \
@@ -103,7 +104,7 @@ class Channel(object):
         doc = 'Imp waveform [amplitude, time]'
         name = self._name
         attrs = ['amplitude', 'time']
-        value = map(int,[getattr(self.waveform,attr)() for attr in attrs])
+        value = list(map(int,[getattr(self.waveform,attr)() for attr in attrs]))
         print('{:8s} {:26} {:}'.format(name, value, doc))
 
 def amplitudes(self):

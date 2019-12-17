@@ -112,6 +112,6 @@ class Channel(object):
         doc = 'Acqiris waveform [min,max,std]'
         name = self._name
         attrs = ['min', 'max', 'std']
-        value = map(int,[getattr(self.waveform,attr)() for attr in attrs])
+        value = list(map(int,[getattr(self.waveform,attr)() for attr in attrs]))
         print('{:8s} {:26} {:}'.format(name, value, doc))
 

@@ -30,7 +30,7 @@ def get_active_dict(files,print_on=False):
             sys.stdout.write('\r{}/{}'.format(i,len(files)))
             sys.stdout.flush()
         x = xr.open_dataset(files[i], engine='h5netcdf')
-        data = x.data_vars.keys()
+        data = list(x.data_vars.keys())
         for det in x.data_vars:
             alias = x[det].attrs.get('alias')
             if alias:
@@ -75,7 +75,7 @@ def get_active_table(datadict,runs, det_alias={}):
 #        if not var.endswith('present'):
 #            continue
         alias = det_alias.get(var)
-        if not alias or alias is 'None' or alias in tabledict.keys():
+        if not alias or alias is 'None' or alias in list(tabledict.keys()):
             continue
         s = pd.Series(np.asarray([runs[i] in datadict[var] for i in range(len(runs))], dtype=int),
             runs)
@@ -133,7 +133,7 @@ def get_damage_table(files, datadict, runs, det_alias={}, print_on=False):
         for var in datadict.keys():
             var = str(var)
             alias = det_alias.get(var)
-            if not alias or alias is 'None' or alias in vardict.keys():
+            if not alias or alias is 'None' or alias in list(vardict.keys()):
                 continue
             try:
                 arr = ds[var]

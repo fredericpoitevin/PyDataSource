@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 
 import numpy as np
 
@@ -77,7 +78,7 @@ def ampdFast(sigInput, order):
             order -= 1
         print("AMPD: Using order " + str(order))
 
-    N = int(len(sigInput) / order / 2)
+    N = len(sigInput) // order // 2
 
     # Loop function calls
     for i in range(0, len(sigInput)-N, N):

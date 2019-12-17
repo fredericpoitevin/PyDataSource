@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import division
 from . import PyDataSource
 import numpy as np
 
@@ -13,7 +14,7 @@ class Qadc(PyDataSource.Detector):
         self.add.parameter(nchannels=4)
         
         signal_width=10
-        hw = signal_width/2
+        hw = signal_width//2
         filter=np.array([-np.ones(hw),np.ones(hw)]).flatten()/(hw*2)
         self.add.parameter(filter=filter)
 
@@ -68,7 +69,7 @@ class Channel(object):
     @property
     def filtered(self):
         from scipy import signal
-        hw = len(self.filter)/2
+        hw = len(self.filter)//2
         f = -signal.convolve(self.waveform,self.filter)
         f[0:len(self.filter)+1] = 0
         f[-len(self.filter)-1:] = 0
@@ -80,7 +81,7 @@ class Channel(object):
            qadc signals are step functions.
            Additional noise needs to be subtracted.
         """
-        hw = len(self.filter)/2
+        hw = len(self.filter)//2
         return self.filtered.argmax()+hw
 
     @property
@@ -88,7 +89,7 @@ class Channel(object):
         """peak of signal in waveform.
            Currently crude calculation with no advanced background subtraction.
         """
-        hw = len(self.filter)/2
+        hw = len(self.filter)//2
         wf = self.waveform
         t0 = self.time
         amp = wf[t0+hw:t0+hw*2].mean() \

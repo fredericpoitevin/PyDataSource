@@ -1,5 +1,7 @@
 from __future__ import print_function
 # import standard python system tools
+from future import standard_library
+standard_library.install_aliases()
 import argparse
 from glob import glob
 import re
@@ -329,11 +331,11 @@ def parse_instrument(**kwargs):
     """Return (instrument, station) tuple from instrument and station keywords.
        Guess instrument and station if keywords not supplied.
     """
-    if len(kwargs) > 0 and 'instrument' in kwargs.keys():
+    if len(kwargs) > 0 and 'instrument' in list(kwargs.keys()):
         instrument = kwargs['instrument']
     else:
         instrument = instrument_guess()
-    if len(kwargs) > 0 and 'station' in kwargs.keys():
+    if len(kwargs) > 0 and 'station' in list(kwargs.keys()):
         station = kwargs['station']
     else:
         station = 0
@@ -433,7 +435,7 @@ def experiment_guess(*args, **kwargs):
     if instrument and is_in_group('ps-'+instrument) or is_in_psdata():
         exp_best = active_experiment(instrument)
     else:
-        experiments = get_experiments(*args).values()[0]
+        experiments = list(get_experiments(*args).values())[0]
         if len(experiments) > 0:
             nruns = 0
             iexp = 0
@@ -495,7 +497,7 @@ def get_ps_instruments(*args):
     """
     # should add all instrument accounts if in ps-data?
     groupdict = {'ps-'+inst: inst for inst in _lcls_instruments}
-    groups = get_groups(*args).values()[0]
+    groups = list(get_groups(*args).values())[0]
     return [groupdict[key] for key 
             in list(set(groups) & set(groupdict.keys()))]
 
@@ -504,7 +506,7 @@ def get_opr_accounts(*args):
        e.g., in the group 'cxiopr'
     """
     groupdict = {inst+'opr': inst for inst in _lcls_instruments}
-    groups = get_groups(*args).values()[0]
+    groups = list(get_groups(*args).values())[0]
     return [groupdict[key] for key in list(set(groups) & set(groupdict.keys()))]
 
 def is_in_group(group,*args):
@@ -513,7 +515,7 @@ def is_in_group(group,*args):
        Usage:
            is_in_group(group,[username])
     """
-    groups = get_groups(*args).values()[0]
+    groups = list(get_groups(*args).values())[0]
     return group in groups
 
 def is_in_psdata(*args):
@@ -565,11 +567,11 @@ def capture_print(executableStrThatPrints):
        Note:ipython also has %%capture
     """
 
-    import sys, StringIO
+    import sys, io
 
     # redir sys.stdout
     stdout = sys.stdout
-    sys.stdout = reportSIO = StringIO.StringIO()
+    sys.stdout = reportSIO = io.StringIO()
 
     eval(executableStrThatPrints)
     reportStr = reportSIO.getvalue()

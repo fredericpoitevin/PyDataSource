@@ -1,10 +1,14 @@
 from __future__ import print_function
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+import six
 import math
 import os
 import time
 import datetime
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import matplotlib.pyplot as plt
 import simplejson as json
 
@@ -94,7 +98,7 @@ class EpicsArchive(object):
         If do_print=False, returns the list of matches.
         """
         url = mgmt_url + "getAllPVs"
-        url += pv_arg.format(urllib.quote(glob, safe=""))
+        url += pv_arg.format(urllib.parse.quote(glob, safe=""))
         pvs = url_query(url)
         if do_print:
             success = list_print(pvs)
@@ -171,7 +175,7 @@ class EpicsArchive(object):
         chunk: boolean for whether or not you want data to be chunked.
         """
         url = retrieval_url
-        url += pv_arg.format(urllib.quote(PV, safe=""))
+        url += pv_arg.format(urllib.parse.quote(PV, safe=""))
         url += url_arg.format("from", date_format(*start))
         url += url_arg.format("to", date_format(*end))
         if not chunk:
@@ -207,7 +211,7 @@ days_map.update({ x: 1./24/60/60/1000 for x in ("milliseconds", "msec", "ms")   
 
 def url_query(url):
     """Makes the URL request."""
-    req = urllib2.urlopen(url)
+    req = urllib.request.urlopen(url)
     data = json.load(req)
     return data
 
@@ -217,7 +221,7 @@ def to_datetime(arg, unit):
     """
     if isinstance(arg, datetime.datetime):
         return arg
-    if isinstance(arg, (int, float, long)):
+    if isinstance(arg, tuple(list(six.integer_types) + [float])):
         return datetime_ago(arg, unit)
     if isinstance(arg, (list, tuple)):
         arg = list(arg)
@@ -244,7 +248,7 @@ def datetime_to_array(dt):
 def date_format(year=2015, month=1, day=1, hr=0, min=0, s=0, ms=0):
     """Convert date/time parameters to date format string for archiver"""
     d = date_spec_format.format(year, month, day, hr, min, s, ms)
-    return urllib.quote(d, safe="")
+    return urllib.parse.quote(d, safe="")
 
 def valid_date_arrays(start, end):
     """
@@ -278,7 +282,7 @@ def list_print(data):
     text_data = [str(i) for i in data]
     col_width = max([len(i) for i in text_data]) + 2
     _, term_width = os.popen('stty size', 'r').read().split()
-    n_cols = int(term_width)/col_width
+    n_cols = int(term_width)//col_width
     n_text = len(text_data)
     n_full_col = int(math.ceil(float(n_text) / n_cols))
     text_rows = []

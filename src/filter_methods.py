@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 def butter_bandpass(fs, lowcut=None, highcut=None, order=10):
     """
     Parameters

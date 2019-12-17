@@ -3,6 +3,8 @@ Beam statistics methods
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+import six
 import logging
 import traceback
 from IPython.core.debugger import Tracer
@@ -114,7 +116,7 @@ def load_exp_sum(exp, instrument=None, path=None, nctype='drop_sum', save=True):
     x = xarray_utils.resort(x).rename({'variable': 'run'})
     x.attrs['experiment'] = exp
     x.attrs['instrument'] = instrument
-    x.attrs['expNum'] = axstats.values()[0].attrs['expNum']
+    x.attrs['expNum'] = list(axstats.values())[0].attrs['expNum']
     x.coords['dvar'] = dvars
     dattrs = {a.replace('_detected',''): str(a) for a in axstats.values()[0].attrs.keys() if a.endswith('detected')}
     advar = {}
@@ -209,7 +211,7 @@ def build_drop_stats(x, min_detected=2,
         weblink='http://pswww.slac.stanford.edu/experiment_results/{:}/{:}-{:}/{:}/{:}'.format(*webattrs)
         for attr in dattrs:
             inds = (x[attr].to_pandas().sum() >= min_detected)
-            attrs = [a for a, val in inds.iteritems() if val]
+            attrs = [a for a, val in inds.items() if val]
             gattrs = {}
             for a in attrs:
                 dattr = a.split('_')[0]
@@ -437,11 +439,14 @@ def get_beam_stats(exp, run, default_modules={},
                                     newval =  item.get('val')
                                     if not val or newval != val:
                                         val = newval
-                                        vt = np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns')
+                                        if six.PY3:
+                                            vt = np.datetime64(int(item['secs']*1e9+item['nanos']), 'ns')
+                                        else:
+                                            vt = np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns')
                                         vals[vt] = val
                                
-                                data_fields[alias][attr] = xr.DataArray(vals.values(), 
-                                                                coords=[vals.keys()], dims=['time'], 
+                                data_fields[alias][attr] = xr.DataArray(list(vals.values()), 
+                                                                coords=[list(vals.keys())], dims=['time'], 
                                                                 name=alias+'_'+attr, attrs=fattrs) 
                                 attrs[attr] = val
          
@@ -462,7 +467,10 @@ def get_beam_stats(exp, run, default_modules={},
                     if isinstance(vals[0],str):
                         vals = np.array(vals, dtype=str)
                     else:
-                        times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
+                        if six.PY3:
+                            times = [np.datetime64(int(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
+                        else:
+                            times = [np.datetime64(long(item['secs']*1e9+item['nanos']), 'ns') for item in dat['data']]
                         dfs = pd.Series(vals, times).sort_index()
                         dfs = dfs[~dfs.index.duplicated()]
                         dfs = dfs[~(dfs.diff()==0)]
@@ -487,7 +495,7 @@ def get_beam_stats(exp, run, default_modules={},
                 traceback.print_exc()
                 print(('Error loading', alias))
 
-        xdata = xr.merge(data_arrays.values())
+        xdata = xr.merge(list(data_arrays.values()))
         if trans_pvs:
             da = xdata.reset_coords()[trans_pvs].to_array() 
             xdata['trans'] = (('time'), da.prod(dim='variable'))
@@ -514,7 +522,7 @@ def get_beam_stats(exp, run, default_modules={},
 
     nevents = ds.nevents
     try:
-        _seq_evtCodes = range(67,99)+range(167,199)+range(201,217)
+        _seq_evtCodes = list(range(67,99))+list(range(167,199))+list(range(201,217))
         code_stats = [int(a.lstrip('ec')) for a in xsmd.coords if a.startswith('ec') \
                 and int(a.lstrip('ec')) in _seq_evtCodes \
                 and xsmd[a].sum()<nevents]
@@ -816,10 +824,10 @@ def get_beam_stats(exp, run, default_modules={},
     print('-'*80)
     ds.reload()
 
-    times = zip(xdrop.sec.values,xdrop.nsec.values,xdrop.fiducials.values)
+    times = list(zip(xdrop.sec.values,xdrop.nsec.values,xdrop.fiducials.values))
     nupdate = 100
     time_last = time0
-    logger.info('Loading: {:}'.format(dets.keys()))
+    logger.info('Loading: {:}'.format(list(dets.keys())))
     for itime, t in enumerate(times):
         if itime % nupdate == nupdate-1:
             time_next = time.time()
@@ -858,7 +866,7 @@ def get_beam_stats(exp, run, default_modules={},
         for name in flatten_list:
             if name in xdrop and len(xdrop[name].dims) == 2:
                 nch = xdrop[name].shape[1]
-                fchans = flatten_channels.get(name, range(nch))
+                fchans = flatten_channels.get(name, list(range(nch)))
                 if nch <= 16 or name in flatten_channels:
                     for ich in fchans:
                         chname = '{:}_ch{:}'.format(name,ich)
@@ -925,7 +933,7 @@ def build_beam_stats(exp=None, run=None,
     from requests import post
     from os import environ
     update_url = environ.get('BATCH_UPDATE_URL')
-    _seq_evtCodes = range(67,99)+range(167,199)+range(201,217)
+    _seq_evtCodes = list(range(67,99))+list(range(167,199))+list(range(201,217))
     batch_counters = {}
 
     if not path:
@@ -1035,7 +1043,7 @@ def build_beam_stats(exp=None, run=None,
                 scanData = configData.ScanData
                 nsteps = scanData.nsteps
                 df_steps = pd.DataFrame(scanData.control_values)
-                scan_attrs = list(df_steps.keys()[df_steps.std() > 0])
+                scan_attrs = list(list(df_steps.keys())[df_steps.std() > 0])
                 if nsteps > 1:
                     report_notes.append('Scan Steps = {:}'.format(nsteps))
                     report_notes.append('Scan Variables = {:}'.format(scan_attrs))
@@ -1097,7 +1105,7 @@ def build_beam_stats(exp=None, run=None,
                         df_codes = xdrop.reset_coords()[flag_names].to_dataframe().sum()
                         if df_codes.sum() == nevents:
                             cut_flag = df_codes.argmax()
-                            flag_inds = range(len(flag_names))
+                            flag_inds = list(range(len(flag_names)))
                             xdrop.coords['tag'] = (['time'], np.zeros(nevents, dtype=int))
                             #xdrop.coords['tag_name'] = (('tag'), flag_names)
                             xdrop.attrs['tag_names'] = flag_names
@@ -1116,13 +1124,13 @@ def build_beam_stats(exp=None, run=None,
             report_config = False
             det_errors = [] 
             if configCheck.alerts:
-                det_errors += configCheck.alerts.keys()
+                det_errors += list(configCheck.alerts.keys())
 #                report_config = True
 #                batch_attr = '<a href={:}#{:}>{:}</a>'.format(weblink, 'Report_Notes', 'Timing Config Alerts')
 #                batch_str = ','.join(set(configCheck.alerts.keys()))
 #                batch_counters[batch_attr] = [batch_str, 'red']
             if configCheck.warnings:
-                det_errors += configCheck.warnings.keys()
+                det_errors += list(configCheck.warnings.keys())
 #                report_config = True
 #                batch_str = ','.join(set(configCheck.warnings.keys()))
 #                batch_attr = '<a href={:}#{:}>{:}</a>'.format(weblink, 'Report_Notes', 'Timing Config Warnings')
@@ -1403,7 +1411,7 @@ def make_small_xarray(self, auto_update=True,
     dets1d = {}
     coords = ['fiducials', 'sec', 'nsec']
     dets = {'EventId': {'names': {a:a for a in coords}}}
-    coords += data.keys()
+    coords += list(data.keys())
     for det, attrs in dets.items():
         for name, attr in attrs['names'].items():
             data.update({name: np.zeros(nevents, dtype=int)})
@@ -1497,9 +1505,9 @@ def make_small_xarray(self, auto_update=True,
     
     nupdate = 100
     time_last = time0
-    logger.info('Loading Scalar: {:}'.format(dets.keys()))
+    logger.info('Loading Scalar: {:}'.format(list(dets.keys())))
     if add_1d:
-        logger.info('Loading 1D: {:}'.format(dets1d.keys()))
+        logger.info('Loading 1D: {:}'.format(list(dets1d.keys())))
     i = 0
     for evt in self.events:       
         # Skip events without event code with are only controls cameras 
@@ -1799,7 +1807,7 @@ def save_exp_stats(exp, instrument=None, path=None, find_corr=True):
                         if avar in xout:
                             for a in ['doc', 'unit', 'alias']:
                                 val = x[avar].attrs.get(a, '') 
-                                if isinstance(val, unicode):
+                                if isinstance(val, (six.binary_type, six.text_type)):
                                     val = str(val)
                                 xout[avar].attrs[a] = val 
                     except:
@@ -1807,9 +1815,9 @@ def save_exp_stats(exp, instrument=None, path=None, find_corr=True):
                 
                 for attr, val in x.attrs.items():
                     try:
-                        if isinstance(val, list) and len(val) > 0 and isinstance(val[0], unicode):
+                        if isinstance(val, list) and len(val) > 0 and isinstance(val[0], (six.binary_type, six.text_type)):
                             val = [str(v) for v in val]
-                        elif isinstance(val, unicode):
+                        elif isinstance(val, (six.binary_type, six.text_type)):
                             val = str(val)
                         xout.attrs[attr] = val
                     except:

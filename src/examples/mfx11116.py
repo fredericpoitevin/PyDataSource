@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 import time
 import sys, os
 import traceback
@@ -132,7 +133,7 @@ def DataSource(run=None, exp=exp, publish=False, projection=False, save_config=F
 
     if 'CsPad' in ds._detectors:
         next(evt.CsPad)
-        evt.CsPad.add.histogram('corr',bins=range(-15,300))
+        evt.CsPad.add.histogram('corr',bins=list(range(-15,300)))
         evt.CsPad.add.count('corr')  
         evt.CsPad.add.stats('corr')
 #        evt.CsPad.add.projection('corr','r') 

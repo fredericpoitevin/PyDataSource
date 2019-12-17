@@ -27,7 +27,7 @@ hutchcolor = {
         }
 
 
-class report:
+class report(object):
     def __init__(self,*args,**kwargs):
         self.output_file = 'report.html'
         self.logger = logging.getLogger(__name__+'.output_html')

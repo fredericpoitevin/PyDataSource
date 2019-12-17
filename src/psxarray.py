@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 # standard python modules
 import os
 import operator
@@ -476,9 +477,9 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
         xbase.coords[attr].attrs['doc'] = 'Event code flag: True if all positive and no negative "codes" are in eventCodes'
         xbase.coords[attr].attrs['codes'] = ec
 
-    xbase.attrs['event_flags'] = code_flags.keys()
+    xbase.attrs['event_flags'] = list(code_flags.keys())
 
-    xbase.coords['steps'] = range(nsteps)
+    xbase.coords['steps'] = list(range(nsteps))
     xbase.coords['codes'] = eventCodes
  
     # Scan Attributes -- cannot put None or dicts as attrs in netcdf4
@@ -508,7 +509,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
             for attr, item in sorted(adat[det].items(), key=operator.itemgetter(0)):
                 axdat[det][attr] = (item[0], np.zeros(item[1]))
             
-            axdat[det].coords['steps'] = range(nsteps)
+            axdat[det].coords['steps'] = list(range(nsteps))
             axdat[det].coords['codes'] = eventCodes
 
     for srcstr, srcitem in sorted(ds.configData._sources.items(), key=operator.itemgetter(0)):
@@ -687,7 +688,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                         print(axdat[det][alias][ievt].shape, vals.shape)
                         vals = None
 
-    xbase = xbase.isel(time=range(len(btimes)))
+    xbase = xbase.isel(time=list(range(len(btimes))))
     xbase['time'] =  [e.datetime64 for e in btimes]
     for attr, dtyp in ttypes.items():
         xbase.coords[attr] = (['time'], np.array([getattr(e, attr) for e in btimes],dtype=dtyp))
@@ -726,7 +727,7 @@ def to_xarray(ds=None, nevents=None, max_size=10001,
                 print('merging', det, nevents)
                 xdat = axdat.pop(det)
                 if 'time' in xdat.dims:
-                    xdat = xdat.isel(time=range(nevents))
+                    xdat = xdat.isel(time=list(range(nevents)))
                     xdat['time'] = [e.datetime64 for e in atimes[det]]
                     xdat = xdat.reindex_like(xbase)
         

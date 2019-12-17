@@ -1,5 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+import str
 def to_summary(x, dim='time', groupby='step', 
         save_summary=False,
         normby=None,
@@ -332,7 +334,7 @@ def get_correlations(y, attr, confidence=0.33, method='pearson',
     x = y.reset_coords()
     attrs = [a for a, item in x.data_vars.items() if item.dims == ('time',)]
     cmatrix = x[attrs].to_dataframe().corr(method=method)
-    cattrs = {a: item for a, item in cmatrix[attr].iteritems() if item > confidence \
+    cattrs = {a: item for a, item in cmatrix[attr].items() if item > confidence \
             and a != attr and a not in omit_list}    
     return cattrs
 
@@ -363,7 +365,7 @@ def heatmap(df, attrs=[], method='pearson', confidence=0.33, position=(0.3,0.35,
     
     corr = df.corr(method=method)
     if confidence:
-        cattrs = df.keys()[((abs(corr)>=confidence).sum()>1).values]
+        cattrs = list(df.keys())[((abs(corr)>=confidence).sum()>1).values]
         corr = df[cattrs].corr(method=method)
     
     sns.heatmap(corr,annot=True)
@@ -489,7 +491,7 @@ def ttest_groupby(xo, attr, groupby='ec162', ishot=0, nearest=None, verbose=Fals
     if len(g) > 1:
         if nearest is not None:
             k0 = []
-            for inear in range(-nearest,0)+range(1,nearest+1):
+            for inear in list(range(-nearest,0))+list(range(1,nearest+1)):
                 for itest in g[1]:
                     a = itest+inear
                     if a>0 and a<ntime:
@@ -540,7 +542,7 @@ def set_delta_beam(x, code='ec162', attr='delta_drop'):
                 df_drop = df_beam[df0]
                 x.coords[attr] = df_beam
                 i = 0
-                for a, b in df_beam.iteritems():
+                for a, b in df_beam.items():
                     x.coords[attr][i] = b-df_drop.values[np.argmin(abs(df_drop.index-a))]
                     i += 1
                 # Not robust way to get rid of outliers 
@@ -810,7 +812,7 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
             if avar in xstats:
                 for a in ['doc', 'unit', 'alias']:
                     val = xo[avar].attrs.get(a, '') 
-                    if isinstance(val, unicode):
+                    if isinstance(val, (six.binary_type, six.text_type)):
                         val = str(val)
                     xstats[avar].attrs[a] = val 
         except:
@@ -818,9 +820,9 @@ def find_beam_correlations(xo, pvalue=1e-20, pvalue0_ratio=0.1, corr_pvalue=0.00
     
     for attr, val in xo.attrs.items():
         try:
-            if isinstance(val, list) and len(val) > 0 and isinstance(val[0], unicode):
+            if isinstance(val, list) and len(val) > 0 and isinstance(val[0], (six.binary_type, six.text_type)):
                 val = [str(v) for v in val]
-            elif isinstance(val, unicode):
+            elif isinstance(val, (six.binary_type, six.text_type)):
                 val = str(val)
             xstats.attrs[attr] = val
         except:
@@ -847,17 +849,17 @@ def clean_dict(attrs):
     """
     import numpy as np
     for attr, item in attrs.items():
-        if isinstance(attr, unicode):
+        if isinstance(attr, (six.binary_type, six.text_type)):
             attr = str(attr)
         if isinstance(item, list):
             clean_item = []
             for a in item:
-                if isinstance(a, unicode):
+                if isinstance(a, (six.binary_type, six.text_type)):
                     clean_item.append(str(a))
                 else:
                     clean_item.append(a)
             attrs[attr] = clean_item
-        elif isinstance(item, unicode):
+        elif isinstance(item, (six.binary_type, six.text_type)):
             attrs[attr] = str(item)
         elif isinstance(item, np.ndarray):
             attrs[attr] = [a for a in item]
@@ -872,14 +874,14 @@ def clean_dataset(xds):
         xcoord = xds.coords[attr]
         attrs = clean_dict(xcoord.attrs)
         xcoord.attrs = attrs
-        if isinstance(attr, unicode):
+        if isinstance(attr, (six.binary_type, six.text_type)):
             del xds.coords[attr]
             attr = str(attr)
         xds.coords[attr] = xcoord
     for attr, xdata in xds.data_vars.items():
         attrs = clean_dict(xdata.attrs)
         xdata.attrs = attrs
-        if isinstance(attr, unicode):
+        if isinstance(attr, (six.binary_type, six.text_type)):
             del xds[attr]
             attr = str(attr)
         xds[attr] = xdata
@@ -1044,7 +1046,7 @@ def open_cxi_dataset(file_name, load_peakpos=False, add_time=False, **kwargs):
     import time
     time0 = time.time() 
     f5 = h5py.File(file_name, 'r')
-    f5keys = f5.keys()
+    f5keys = list(f5.keys())
 
     xdata = xr.Dataset()
 
@@ -1057,7 +1059,7 @@ def open_cxi_dataset(file_name, load_peakpos=False, add_time=False, **kwargs):
         print('Error getting cxi_version')
 
     attr = 'psocake'
-    if attr in f5.keys():
+    if attr in list(f5.keys()):
         f5keys.remove(attr)
         try:
             a = f5.get(attr+'/input')
@@ -1068,7 +1070,7 @@ def open_cxi_dataset(file_name, load_peakpos=False, add_time=False, **kwargs):
 
     status_attrs = {}
     attr = 'status'
-    if attr in f5.keys():
+    if attr in list(f5.keys()):
         f5keys.remove(attr)
         try:
             for key in f5.get(attr).keys():
@@ -1209,7 +1211,7 @@ def add_moved_pvs(xdata, exp=None, run=None):
     es = get_exp_summary(exp) 
     xadd = es.get_scan_data(run)
     xdata = merge_fill(xdata, xadd, bfill=True)
-    xdata.attrs['scan_pvs'] = xadd.data_vars.keys()
+    xdata.attrs['scan_pvs'] = list(xadd.data_vars.keys())
     return xdata
 
 def merge_fill(xdata, xadd, bfill=True, 

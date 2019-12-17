@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import input
 import time
 import argparse
 
@@ -123,7 +124,7 @@ if __name__ == "__main__":
         if attr in ['scan']:
             print(ds.configData.ScanData.show_info())
         if attr in ['plot']:
-            dets = ds.configData._config_srcs.keys()
+            dets = list(ds.configData._config_srcs.keys())
             detstr = args.det
             if detstr:
                 try:
@@ -183,7 +184,7 @@ if __name__ == "__main__":
                     get_new = 'y'
                     while get_new in ["y","Y"]:
                         evt.monitor(nevents)
-                        get_new = raw_input("Display more events -- 'y' for {:} events or enter number of events?\n".format(nevents)) 
+                        get_new = input("Display more events -- 'y' for {:} events or enter number of events?\n".format(nevents)) 
                         try:
                             get_int = int(get_new)
                         except:
@@ -193,11 +194,11 @@ if __name__ == "__main__":
                             get_new = "y"
                 else:
                     evt.monitor(nevents)
-                    get_new = raw_input("Run Finished - Reload ?\n".format(nevents))
+                    get_new = input("Run Finished - Reload ?\n".format(nevents))
                     while get_new in ["y","Y"]:
                         ds.reload()
                         evt.monitor(nevents)
-                        get_new = raw_input("Run Finished - Reload ?\n".format(nevents))
+                        get_new = input("Run Finished - Reload ?\n".format(nevents))
 
         if attr in ['mpi']:
             from .h5write import to_hdf5_mpi

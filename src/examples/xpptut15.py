@@ -28,7 +28,7 @@ def to_summary(x, dim='time',
     if 'Damage_cut' in x:
         x = x.where(x.Damage_cut).dropna('time')
     a = {func: getattr(x, func)(dim=dim) for func in stats} 
-    x = xr.concat(a.values(), a.keys()).rename({'concat_dim': 'stat'})
+    x = xr.concat(list(a.values()), list(a.keys())).rename({'concat_dim': 'stat'})
     if save_summary:
         to_hdf5(x)
 
@@ -308,7 +308,7 @@ def get_correlations(y, attr='PulseEnergy', confidence=0.1, method='pearson',
     x = y.reset_coords()
     attrs = [a for a, item in x.data_vars.items() if item.dims == ('time',)]
     cmatrix = x[attrs].to_dataframe().corr(method=method)
-    cattrs = {a: item for a, item in cmatrix[attr].iteritems() if item > confidence \
+    cattrs = {a: item for a, item in cmatrix[attr].items() if item > confidence \
             and a != attr and a not in omit_list}    
     return cattrs
 
