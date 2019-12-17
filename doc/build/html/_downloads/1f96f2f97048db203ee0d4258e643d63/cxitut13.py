@@ -11,7 +11,7 @@ def DataSource(exp=exp, run=30,
     import PyDataSource
     import numpy as np
     ds = PyDataSource.DataSource(exp=exp,run=run, **kwargs)
-    evt = ds.events.next()
+    evt = next(ds.events)
     
     if run in [10,11]:
         evt.DscCsPad.add.parameter(gain=1/23.)
@@ -58,7 +58,7 @@ def DataSource(exp=exp, run=30,
 
     elif run == 30:
         evt.Sc2Imp.add.module('impbox')
-        evt.Sc2Imp.next()
+        next(evt.Sc2Imp)
         attrs={ 'filter': evt.Sc2Imp.filter}
         evt.Sc2Imp.add.stats('filtered', doc='Filted waveforms', attrs=attrs) 
         evt.Acqiris.add.module('acqiris')

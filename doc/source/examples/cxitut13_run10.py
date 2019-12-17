@@ -3,7 +3,7 @@ from pylab import *
 import PyDataSource
 ds = PyDataSource.DataSource(exp='cxitut13',run=10)
 ds.configData
-evt = ds.events.next()
+evt = next(ds.events)
 evt.DscCsPad.add.parameter(gain=1/23.)
 bins = np.arange(-20,150,1)*evt.DscCsPad.gain
 evt.DscCsPad.add.histogram('calib', bins=bins, gain=evt.DscCsPad.gain, name='photon_hist', unit='photons', doc='Gain corrected histogram')

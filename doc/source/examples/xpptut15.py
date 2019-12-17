@@ -11,15 +11,15 @@ def DataSource(exp=exp, run=310,
     import PyDataSource
     import numpy as np
     ds = PyDataSource.DataSource(exp=exp,run=run, **kwargs)
-    evt = ds.events.next()
+    evt = next(ds.events)
     
     if run in [310]:
-        evt.OPAL1.next()
+        next(evt.OPAL1)
         evt.OPAL1.add.projection('corr','x')
         evt.OPAL1.add.projection('corr','y')
         evt.OPAL1.add.count('corr')
     elif run in [300]:
-        evt.OPAL1.next()
+        next(evt.OPAL1)
         evt.OPAL1.add.projection('corr','x')
         if publish:
             evt.OPAL1.add.psplot('corr')
@@ -27,14 +27,14 @@ def DataSource(exp=exp, run=310,
         evt.ACQ4.add.module('acqiris')
         evt.pnccdFront.add.psplot('image')
     elif run in [260]:
-        evt.cspad2x2_diff.next()
+        next(evt.cspad2x2_diff)
         if publish:
             evt.cspad2x2_diff.add.psplot('image')
         evt.cspad2x2_diff.add.histogram('calib',bins=range(-15,275),publish=publish)
         evt.cspad2x2_diff.add.count('calib')
         evt.cspad2x2_diff.add.projection('image', 'x')
         evt.cspad2x2_diff.add.projection('image', 'y')
-        evt.epix100a_diff.next()
+        next(evt.epix100a_diff)
         if publish:
             evt.epix100a_diff.add.psplot('image')
         evt.epix100a_diff.add.histogram('calib',bins=range(-15,275),publish=publish)
@@ -43,23 +43,23 @@ def DataSource(exp=exp, run=310,
         evt.epix100a_diff.add.projection('image', 'y')
 
     elif run in [250]:
-        evt.opal_1.next()
+        next(evt.opal_1)
         evt.opal_1.add.psplot('corr')
         evt.opal_1.add.projection('corr','x')
         evt.opal_1.add.count('corr')
     elif run in [240]:
-        evt.rayonix.next()
+        next(evt.rayonix)
         evt.rayonix.add.psplot('corr')
         evt.rayonix.add.projection('corr','x')
         evt.rayonix.add.count('corr')
     elif run in [220]:
-       evt.opal_1.next()
+       next(evt.opal_1)
        evt.opal_1.add.psplot('corr')
        evt.opal_1.add.projection('corr','x')
        evt.opal_1.add.count('corr')
        evt.XppMon_Pim0.add.psplot('corr')
     elif run in [230]:
-        evt.cspad.next()
+        next(evt.cspad)
         evt.cspad.add.psplot('image')
         evt.cspad.add.projection('corr','x')
         evt.cs140_0.add.psplot('corr')

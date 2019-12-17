@@ -2,7 +2,7 @@ import PyDataSource
 
 ds = PyDataSource.DataSource(exp='xpptut15',run=280)
 
-evt  = ds.events.next()
+evt  = next(ds.events)
 
 evt.ACQ1.show_info()
 

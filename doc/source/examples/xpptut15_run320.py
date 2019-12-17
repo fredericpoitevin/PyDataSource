@@ -2,7 +2,7 @@
 import PyDataSource
 ds  = PyDataSource.DataSource(exp='xpptut15',run=320)
 ds.configData
-evt = ds.events.next()
+evt = next(ds.events)
 evt.cspad.add.psplot('image')
 
 evt.cspad.add.parameter(gain=1/35.)
@@ -23,7 +23,7 @@ import numpy as np
 import PyDataSource
 ds = PyDataSource.DataSource(exp='cxitut13',run=10)
 ds.configData
-evt = ds.events.next()
+evt = next(ds.events)
 evt.DscCsPad.add.psplot('image')
 #Jump to event with higher Background  
 evt.next(14)
