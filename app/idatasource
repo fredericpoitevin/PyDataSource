@@ -62,7 +62,7 @@ def banner(ds, base='ds', time0=None):
     
     print("")
     ds.configData.show_info()
-    evt = ds.events.next()
+    evt = next(ds.events)
     print("")
     print("*"*80)
     print('{:} is a python friendly (i.e, tab accessible) form of the psana.DataSource.'.format(base))
