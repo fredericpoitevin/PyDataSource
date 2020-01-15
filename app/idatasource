@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import argparse
 import sys
 import IPython
@@ -50,40 +51,40 @@ def initArgs():
 
 def banner(ds, base='ds', time0=None):
     ds = getattr(sys.modules['__main__'], base)
-    print "*"*80
-    print ""
-    print 'Data loaded for the psana data_source = ', str(ds)
+    print("*"*80)
+    print("")
+    print('Data loaded for the psana data_source = ', str(ds))
     if ds.events:
-        print 'Total Events = ', ds.nevents
+        print('Total Events = ', ds.nevents)
     
     if time0:
-        print 'Load time = {:5.1f} sec'.format(time.time()-time0)
+        print('Load time = {:5.1f} sec'.format(time.time()-time0))
     
-    print ""
+    print("")
     ds.configData.show_info()
     evt = ds.events.next()
-    print ""
-    print "*"*80
-    print '{:} is a python friendly (i.e, tab accessible) form of the psana.DataSource.'.format(base)
-    print 'Event data is accessible through aliases (psana get and keys methods are also preserved),  e.g.,'
-    print ""
-    print 'In [1]: evt = {:}.events.next()'.format(base)
-    print 'In [2]: evt.Evr.eventCodes'
-    print 'Out[2]: {:}'.format(str(evt.Evr.eventCodes))
-    print ""
-    print "The current event is also available in the {:}.events object, e.g.,".format(base) 
-    print ""
-    print 'In [3]: ds.events.current.Evr.eventCodes'
-    print 'Out[3]: {:}'.format(str(ds.events.current.Evr.eventCodes))
-    print ""
+    print("")
+    print("*"*80)
+    print('{:} is a python friendly (i.e, tab accessible) form of the psana.DataSource.'.format(base))
+    print('Event data is accessible through aliases (psana get and keys methods are also preserved),  e.g.,')
+    print("")
+    print('In [1]: evt = {:}.events.next()'.format(base))
+    print('In [2]: evt.Evr.eventCodes')
+    print('Out[2]: {:}'.format(str(evt.Evr.eventCodes)))
+    print("")
+    print("The current event is also available in the {:}.events object, e.g.,".format(base)) 
+    print("")
+    print('In [3]: ds.events.current.Evr.eventCodes')
+    print('Out[3]: {:}'.format(str(ds.events.current.Evr.eventCodes)))
+    print("")
     if ds.data_source.smd:
-        print 'For offline data (using smd small data access), one can also iterate through "calib cycle" steps.  e.g.,'
-        print "In [4]: for events in {:}.steps:".format(base)
-        print "            for evt in events:"
-        print "                # Do something with events..."
-        print ""
+        print('For offline data (using smd small data access), one can also iterate through "calib cycle" steps.  e.g.,')
+        print("In [4]: for events in {:}.steps:".format(base))
+        print("            for evt in events:")
+        print("                # Do something with events...")
+        print("")
     
-    print "*"*80
+    print("*"*80)
     return repr(ds)
 
 def main():
